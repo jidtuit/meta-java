@@ -1,4 +1,4 @@
-package org.jid.metajava.model;
+package org.jid.examples.metajava.model;
 
 public record ImportMeta(String importString, boolean isStatic) {
 

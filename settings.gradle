@@ -11,4 +11,7 @@ plugins {
 }
 
 rootProject.name = 'meta-java'
+
 include('lib')
+include 'examples'
+

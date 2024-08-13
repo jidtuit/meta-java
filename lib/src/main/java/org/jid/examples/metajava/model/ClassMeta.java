@@ -1,4 +1,4 @@
-package org.jid.metajava.model;
+package org.jid.examples.metajava.model;
 
 import java.util.List;
 import java.util.Set;

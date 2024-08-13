@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.jid.examples.metajava.model.ClassMeta;
+import org.jid.metajava.MetaJava;
+import org.jid.metajava.model.ClassMeta;
 
 public class AuthorizationAnnotationInventory {
 
@@ -31,7 +32,7 @@ public class AuthorizationAnnotationInventory {
     Set<File> filesTcfd = searchForControllerJavaFiles(new File(SEARCH_FROM_TCFD));
     Set<File> files = new HashSet<>(filesCarbon);
     files.addAll(filesTcfd);
-    Set<ClassMeta> classes = new MetaJava().getMetaFromFiles(files);
+    Set<ClassMeta> classes = new MetaJava().getMetaFrom(files);
     saveToCsv(classes);
 
     System.out.println("End of program");
@@ -40,16 +41,19 @@ public class AuthorizationAnnotationInventory {
   private static void saveToCsv(Set<ClassMeta> classes) throws IOException {
 
     var csv = new ArrayList<String>();
-    csv.add("Module" + SEPARATOR + "Class" + SEPARATOR + "Method" + SEPARATOR + "Annotation" + SEPARATOR + "Permission" + SEPARATOR + "Package");
+    csv.add(
+      "Module" + SEPARATOR + "Class" + SEPARATOR + "Method" + SEPARATOR + "Annotation" + SEPARATOR + "Permission" + SEPARATOR + "Package");
     classes.forEach(clazz -> clazz.methods().forEach(method ->
         method.annotations().stream().filter(annotation -> ANNOTATION_NAME.equals(annotation.name())).forEach(annotation ->
-          annotation.args().stream().filter(arg -> arg.startsWith(ANNOTATION_ARG_NAME)).forEach(arg -> { // Alternative: Filter if arg doesn't start with index
-              List<String> permissions = parsePermissions(arg);
-              permissions.forEach(permission ->
-                csv.add(getModule(clazz)  + SEPARATOR + clazz.name() + SEPARATOR + method.name() + SEPARATOR + annotation.name() + SEPARATOR + permission  + SEPARATOR + clazz.packageName())
-              );
-            }
-          )
+          annotation.args().stream().filter(arg -> arg.startsWith(ANNOTATION_ARG_NAME))
+            .forEach(arg -> { // Alternative: Filter if arg doesn't start with index
+                List<String> permissions = parsePermissions(arg);
+                permissions.forEach(permission ->
+                  csv.add(getModule(clazz) + SEPARATOR + clazz.name() + SEPARATOR + method.name() + SEPARATOR + annotation.name() + SEPARATOR
+                    + permission + SEPARATOR + clazz.packageName())
+                );
+              }
+            )
         )
       )
     );

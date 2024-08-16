@@ -116,11 +116,6 @@ class MetaJavaTest {
     }
   }
 
-  private static ClassMeta getClassMeta(Set<ClassMeta> actual, String Class1) {
-    ClassMeta class1 = actual.stream().filter(c -> c.name().equals(Class1)).findFirst().orElseThrow();
-    return class1;
-  }
-
   @Nested
   class InputParamTests {
 
@@ -134,5 +129,11 @@ class MetaJavaTest {
       assertThatThrownBy(() -> metaJava.getMetaFrom(Set.of())).isInstanceOf(IllegalArgumentException.class);
     }
   }
+
+  private static ClassMeta getClassMeta(Set<ClassMeta> actual, String Class1) {
+    ClassMeta class1 = actual.stream().filter(c -> c.name().equals(Class1)).findFirst().orElseThrow();
+    return class1;
+  }
+
 
 }

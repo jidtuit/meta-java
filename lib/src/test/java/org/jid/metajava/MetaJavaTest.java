@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.ImportMeta;
+import org.jid.metajava.model.MethodMeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -67,13 +68,13 @@ class MetaJavaTest {
 
       Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
 
-      ClassMeta class1 = actual.stream().filter(c -> c.name().equals("Class1")).findFirst().orElseThrow();
+      ClassMeta class1 = getClassMeta(actual, "Class1");
       List<String> staticImports = class1.imports().stream().filter(ImportMeta::isStatic).map(ImportMeta::importString).toList();
       assertThat(staticImports).containsExactlyInAnyOrder(
         "sample.staticimport.Class11.method1", "sample.staticimport.Class11.method2"
       );
 
-      ClassMeta class2 = actual.stream().filter(c -> c.name().equals("Class2")).findFirst().orElseThrow();
+      ClassMeta class2 = getClassMeta(actual, "Class2");
       assertThat(class2.imports()).isEmpty();
     }
 
@@ -82,15 +83,42 @@ class MetaJavaTest {
 
       Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
 
-      ClassMeta class1 = actual.stream().filter(c -> c.name().equals("Class1")).findFirst().orElseThrow();
+      ClassMeta class1 = getClassMeta(actual, "Class1");
       List<String> staticImports = class1.imports().stream().filter(not(ImportMeta::isStatic)).map(ImportMeta::importString).toList();
       assertThat(staticImports).containsExactlyInAnyOrder(
         "sample.nonstaticimport.Class12", "sample.nonstaticimport.Class13"
       );
 
-      ClassMeta class2 = actual.stream().filter(c -> c.name().equals("Class2")).findFirst().orElseThrow();
+      ClassMeta class2 = getClassMeta(actual, "Class2");
       assertThat(class2.imports()).isEmpty();
     }
+  }
+
+  @Nested
+  class MethodMetaTests {
+
+    @Test
+    void readMethodNames() throws IOException {
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+
+      ClassMeta class1 = getClassMeta(actual, "Class1");
+      assertThat(class1.methods()).map(MethodMeta::name).containsExactlyInAnyOrder("m11", "m12");
+    }
+
+    @Test
+    void returnEmptyWhenNoMethodNames() throws IOException {
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+
+      ClassMeta class2 = getClassMeta(actual, "Class2");
+      assertThat(class2.methods()).isEmpty();
+    }
+  }
+
+  private static ClassMeta getClassMeta(Set<ClassMeta> actual, String Class1) {
+    ClassMeta class1 = actual.stream().filter(c -> c.name().equals(Class1)).findFirst().orElseThrow();
+    return class1;
   }
 
   @Nested

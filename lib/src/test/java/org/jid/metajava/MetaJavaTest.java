@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
+import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
@@ -103,7 +104,7 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
-      assertThat(class1.methods()).map(MethodMeta::name).containsExactlyInAnyOrder("m11", "m12");
+      assertThat(class1.methods()).map(MethodMeta::name).containsExactlyInAnyOrder("m11", "m12", "noAnnotationMethod");
     }
 
     @Test
@@ -114,6 +115,70 @@ class MetaJavaTest {
       ClassMeta class2 = getClassMeta(actual, "Class2");
       assertThat(class2.methods()).isEmpty();
     }
+  }
+
+  @Nested
+  class MethodAnnotationsMeta {
+
+    @Test
+    void readAnnotationsWithoutArguments() throws IOException {
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+
+      ClassMeta class1 = getClassMeta(actual, "Class1");
+      MethodMeta methodMeta12 = getMethodMeta(class1, "m12");
+      AnnotationMeta myMethodAnnotation13 = getAnnotationMeta(methodMeta12, "MyMethodAnnotation13");
+
+      assertThat(myMethodAnnotation13.name()).isEqualTo("MyMethodAnnotation13");
+      assertThat(myMethodAnnotation13.args()).isEmpty();
+    }
+
+    @Test
+    void readAnnotationsWithDefaultArgument() throws IOException {
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+
+      ClassMeta class1 = getClassMeta(actual, "Class1");
+      MethodMeta methodMeta12 = getMethodMeta(class1, "m11");
+      AnnotationMeta myMethodAnnotation11 = getAnnotationMeta(methodMeta12, "MyMethodAnnotation11");
+
+      assertThat(myMethodAnnotation11.name()).isEqualTo("MyMethodAnnotation11");
+      assertThat(myMethodAnnotation11.args()).hasSize(1);
+
+      String arg = myMethodAnnotation11.args().stream().findFirst().orElseThrow();
+      assertThat(arg).isEqualTo("\"annotation param 11\"");
+    }
+
+    @Test
+    void readAnnotationsWithSeveralArguments() throws IOException {
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+
+      ClassMeta class1 = getClassMeta(actual, "Class1");
+      MethodMeta methodMeta12 = getMethodMeta(class1, "m12");
+      AnnotationMeta MyMethodAnnotation12 = getAnnotationMeta(methodMeta12, "MyMethodAnnotation12");
+
+      assertThat(MyMethodAnnotation12.name()).isEqualTo("MyMethodAnnotation12");
+      assertThat(MyMethodAnnotation12.args()).hasSize(2);
+
+      String arg1Value = getAnnotationArgsMeta(MyMethodAnnotation12, "arg1");
+      assertThat(arg1Value).isEqualTo("arg1 = 42");
+
+      String arg2Value = getAnnotationArgsMeta(MyMethodAnnotation12, "arg2");
+      assertThat(arg2Value).isEqualTo("arg2 = {1, 2, 3}");
+    }
+
+    @Test
+    void readMethodWithNoAnnotations() throws IOException {
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+
+      ClassMeta class1 = getClassMeta(actual, "Class1");
+      MethodMeta methodMeta12 = getMethodMeta(class1, "noAnnotationMethod");
+
+      assertThat(methodMeta12. annotations()).isEmpty();
+    }
+
   }
 
   @Nested
@@ -128,11 +193,22 @@ class MetaJavaTest {
     void throwWhenFilesParameterIsEmpty() {
       assertThatThrownBy(() -> metaJava.getMetaFrom(Set.of())).isInstanceOf(IllegalArgumentException.class);
     }
+
+  }
+  private ClassMeta getClassMeta(Set<ClassMeta> actual, String Class1) {
+    return actual.stream().filter(c -> c.name().equals(Class1)).findFirst().orElseThrow();
   }
 
-  private static ClassMeta getClassMeta(Set<ClassMeta> actual, String Class1) {
-    ClassMeta class1 = actual.stream().filter(c -> c.name().equals(Class1)).findFirst().orElseThrow();
-    return class1;
+  private MethodMeta getMethodMeta(ClassMeta class1, String methodName) {
+    return class1.methods().stream().filter(m -> methodName.equals(m.name())).findFirst().orElseThrow();
+  }
+
+  private AnnotationMeta getAnnotationMeta(MethodMeta method1, String annotationName) {
+    return method1.annotations().stream().filter(a -> annotationName.equals(a.name())).findFirst().orElseThrow();
+  }
+
+  private String getAnnotationArgsMeta(AnnotationMeta annotationMeta, String argName) {
+    return annotationMeta.args().stream().filter(arg -> arg.startsWith(argName)).findFirst().orElseThrow();
   }
 
 

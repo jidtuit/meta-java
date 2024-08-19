@@ -1,13 +1,14 @@
 # meta-java
 
 ## TODO list
-* Annotaions:
-  * Annotations at class level
+* Refactor code to reduce cyclomatic complexity 
+* Annotations:
   * Split annotation argument in name and value
   * Annotation arguments with real types instead of Strings
   * When annotation has argValue but no argName
     * Remove extra quotation marks
     * Return "default argName" instead of returning directly the arg value
+* Class annotations
 * Class fields
   * Field name
   * Field type
@@ -22,3 +23,5 @@
   * Detect generic types
   * Accessor (public, private, etc)
   * isStatic?
+* Add search methods to look for an specific field or method or annotation or argument annotation.
+* 

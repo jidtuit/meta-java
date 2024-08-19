@@ -9,6 +9,10 @@
     * Remove extra quotation marks
     * Return "default argName" instead of returning directly the arg value
 * Class annotations
+* Interfaces implemented by a class
+  * Detect generic types?
+* Class that inherits from another class
+  * Detect generic types?
 * Class fields
   * Field name
   * Field type

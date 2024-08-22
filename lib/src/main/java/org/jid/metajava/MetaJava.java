@@ -1,12 +1,12 @@
 package org.jid.metajava;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.jid.metajava.VisitorFactory.runMethodVisitor;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.ImportTree;
-import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.SimpleTreeVisitor;
@@ -53,19 +53,16 @@ public class MetaJava {
           public Object visitClass(ClassTree classTree, Object o) {
             var methods = new HashSet<MethodMeta>();
             classTree.getMembers().forEach(member -> {
-              member.accept(new SimpleTreeVisitor<>() {
-                @Override
-                public Object visitMethod(MethodTree methodTree, Object o) {
+                runMethodVisitor(member, methods, (methodTree, methodAcc) -> {
                   var annotations = new HashSet<AnnotationMeta>();
                   methodTree.getModifiers().getAnnotations()
                     .forEach(annotationTree -> {
                       Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).collect(Collectors.toSet());
                       annotations.add(new AnnotationMeta(annotationTree.getAnnotationType().toString(), args));
                     });
-                  methods.add(new MethodMeta(methodTree.getName().toString(), annotations));
+                  methodAcc.add(new MethodMeta(methodTree.getName().toString(), annotations));
                   return null;
-                }
-              }, null);
+                });
             });
             classes.add(new ClassMeta(classTree.getSimpleName().toString(), methods, packageName, sourceFile, imports));
             return null;

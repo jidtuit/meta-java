@@ -3,6 +3,7 @@ package org.jid.metajava;
 import static com.sun.source.tree.Tree.Kind.METHOD;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.unmodifiableSet;
+import static org.jid.metajava.VisitorFactory.runClassVisitor;
 import static org.jid.metajava.VisitorFactory.runMethodVisitor;
 
 import com.sun.source.tree.ClassTree;
@@ -49,23 +50,32 @@ public class MetaJava {
 
     Set<ClassMeta> classes = new HashSet<>();
     for (CompilationUnitTree compilationUnitTree : compilationUnitTrees) {
-      String packageName = compilationUnitTree.getPackage().getPackageName().toString();
-      String sourceFile = compilationUnitTree.getSourceFile().toUri().toString();
-      List<ImportMeta> imports = compilationUnitTree.getImports().stream().map(this::parseImport).toList();
+      var compilationUnitMeta = getCompilationUnitMeta(compilationUnitTree);
       for (Tree tree : compilationUnitTree.getTypeDecls()) {
-        tree.accept(new SimpleTreeVisitor() {
-          @Override
-          public Object visitClass(ClassTree classTree, Object o) {
-            var methodsOfAClass = new HashSet<MethodMeta>();
-            classTree.getMembers().forEach(classMember -> getMethodMetas(classMember, methodsOfAClass));
-            classes.add(new ClassMeta(classTree.getSimpleName().toString(), unmodifiableSet(methodsOfAClass), packageName, sourceFile, imports));
-            return null;
-          }
-        }, null);
-
+        getClassMetas(tree, classes, compilationUnitMeta);
       }
     }
     return classes;
+  }
+
+  private CompilationUnitMeta getCompilationUnitMeta(CompilationUnitTree compilationUnitTree) {
+    String sourceFile = compilationUnitTree.getSourceFile().toUri().toString();
+    String packageName = compilationUnitTree.getPackage().getPackageName().toString();
+    List<ImportMeta> imports = compilationUnitTree.getImports().stream().map(this::parseImport).toList();
+    return new CompilationUnitMeta(sourceFile, packageName, imports);
+  }
+
+  private void getClassMetas(Tree tree, Set<ClassMeta> classes, CompilationUnitMeta compilationUnitMeta) {
+    String sourceFile = compilationUnitMeta.sourceFile();
+    String packageName = compilationUnitMeta.packageName();
+    List<ImportMeta> imports = compilationUnitMeta.imports();
+
+    runClassVisitor(tree, classes, (classTree, classesAcc) -> {
+      var methodsOfAClass = new HashSet<MethodMeta>();
+      classTree.getMembers().forEach(classMember -> getMethodMetas(classMember, methodsOfAClass));
+      classesAcc.add(new ClassMeta(classTree.getSimpleName().toString(), unmodifiableSet(methodsOfAClass), packageName, sourceFile, imports));
+      return null;
+    });
   }
 
   private void getMethodMetas(Tree methodInfoTree, HashSet<MethodMeta> methods) {
@@ -95,5 +105,7 @@ public class MetaJava {
     var importName = importTree.toString().substring(length).replace(";", "").trim();
     return new ImportMeta(importName, isStatic);
   }
+
+  private record CompilationUnitMeta(String sourceFile, String packageName, List<ImportMeta> imports){}
 
 }

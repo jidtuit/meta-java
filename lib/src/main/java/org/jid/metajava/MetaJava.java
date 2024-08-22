@@ -39,6 +39,21 @@ public class MetaJava {
       throw new IllegalArgumentException("Parameter files is null or empty");
     }
 
+    Set<ClassMeta> classes = new HashSet<>();
+
+    var compilationUnitTrees = getCompilationUnitTrees(files);
+
+    for (CompilationUnitTree compilationUnitTree : compilationUnitTrees) {
+      var compilationUnitMeta = getCompilationUnitMeta(compilationUnitTree);
+      for (Tree tree : compilationUnitTree.getTypeDecls()) {
+        getClassMetas(tree, classes, compilationUnitMeta);
+      }
+    }
+
+    return classes;
+  }
+
+  private Iterable<? extends CompilationUnitTree> getCompilationUnitTrees(Collection<File> files) throws IOException {
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, UTF_8);
     Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
@@ -46,16 +61,8 @@ public class MetaJava {
     // "-proc:full" compiler option needed to be able to process annotations
     JavacTask javacTask =
       (JavacTask) compiler.getTask(null, fileManager, null, List.of("-proc:full"), null, compilationUnits);
-    Iterable<? extends CompilationUnitTree> compilationUnitTrees = javacTask.parse();
 
-    Set<ClassMeta> classes = new HashSet<>();
-    for (CompilationUnitTree compilationUnitTree : compilationUnitTrees) {
-      var compilationUnitMeta = getCompilationUnitMeta(compilationUnitTree);
-      for (Tree tree : compilationUnitTree.getTypeDecls()) {
-        getClassMetas(tree, classes, compilationUnitMeta);
-      }
-    }
-    return classes;
+    return javacTask.parse();
   }
 
   private CompilationUnitMeta getCompilationUnitMeta(CompilationUnitTree compilationUnitTree) {

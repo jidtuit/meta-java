@@ -70,7 +70,8 @@ public class MetaJava {
     runClassVisitor(tree, classes, (classTree, classesAcc) -> {
       var methodsOfAClass = new HashSet<MethodMeta>();
       classTree.getMembers().forEach(classMember -> getMethodMetas(classMember, methodsOfAClass));
-      classesAcc.add(new ClassMeta(classTree.getSimpleName().toString(), unmodifiableSet(methodsOfAClass), packageName, sourceFile, imports));
+      String className = classTree.getSimpleName().toString();
+      classesAcc.add(new ClassMeta(className, unmodifiableSet(methodsOfAClass), packageName, sourceFile, imports));
       return null;
     });
   }
@@ -78,7 +79,8 @@ public class MetaJava {
   private void getMethodMetas(Tree methodInfoTree, HashSet<MethodMeta> methods) {
     runMethodVisitor(methodInfoTree, methods, (methodTree, methodAcc) -> {
       var annotations = getAnnotationMetas(methodTree);
-      methodAcc.add(new MethodMeta(methodTree.getName().toString(), annotations));
+      String methodName = methodTree.getName().toString();
+      methodAcc.add(new MethodMeta(methodName, annotations));
       return null;
     });
   }
@@ -88,7 +90,8 @@ public class MetaJava {
     methodTree.getModifiers().getAnnotations()
       .forEach(annotationTree -> {
         Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).collect(Collectors.toSet());
-        annotations.add(new AnnotationMeta(annotationTree.getAnnotationType().toString(), args));
+        String annotationName = annotationTree.getAnnotationType().toString();
+        annotations.add(new AnnotationMeta(annotationName, args));
       });
     return unmodifiableSet(annotations);
   }

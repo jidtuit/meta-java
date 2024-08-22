@@ -7,6 +7,10 @@ import sample.nonstaticimport.Class13;
 
 public class Class1 {
 
+  public static final String CONSTANT_1_1 = "constant1-1";
+  private int answer = 42;
+  private int notInitVar;
+
   @MyMethodAnnotation11("annotation param 11")
   public void m11() {
 

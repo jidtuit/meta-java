@@ -1,5 +1,7 @@
 package org.jid.metajava;
 
+import static com.sun.source.tree.Tree.Kind.METHOD;
+
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
@@ -18,6 +20,9 @@ class VisitorFactory {
   }
 
   static <R, P> R runMethodVisitor(Tree tree, P param, BiFunction<MethodTree, P, R> f) {
+    if(tree.getKind() != METHOD) {
+      return null;
+    }
     return tree.accept(new SimpleTreeVisitor<>() {
       @Override
       public R visitMethod(MethodTree methodTree, P param) {

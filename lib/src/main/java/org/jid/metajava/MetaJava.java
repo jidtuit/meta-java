@@ -1,18 +1,23 @@
 package org.jid.metajava;
 
+import static com.sun.source.tree.Tree.Kind.METHOD;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.unmodifiableSet;
 import static org.jid.metajava.VisitorFactory.runMethodVisitor;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.ImportTree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.JavacTask;
 import com.sun.source.util.SimpleTreeVisitor;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,20 +56,9 @@ public class MetaJava {
         tree.accept(new SimpleTreeVisitor() {
           @Override
           public Object visitClass(ClassTree classTree, Object o) {
-            var methods = new HashSet<MethodMeta>();
-            classTree.getMembers().forEach(member -> {
-                runMethodVisitor(member, methods, (methodTree, methodAcc) -> {
-                  var annotations = new HashSet<AnnotationMeta>();
-                  methodTree.getModifiers().getAnnotations()
-                    .forEach(annotationTree -> {
-                      Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).collect(Collectors.toSet());
-                      annotations.add(new AnnotationMeta(annotationTree.getAnnotationType().toString(), args));
-                    });
-                  methodAcc.add(new MethodMeta(methodTree.getName().toString(), annotations));
-                  return null;
-                });
-            });
-            classes.add(new ClassMeta(classTree.getSimpleName().toString(), methods, packageName, sourceFile, imports));
+            var methodsOfAClass = new HashSet<MethodMeta>();
+            classTree.getMembers().forEach(classMember -> getMethodMetas(classMember, methodsOfAClass));
+            classes.add(new ClassMeta(classTree.getSimpleName().toString(), unmodifiableSet(methodsOfAClass), packageName, sourceFile, imports));
             return null;
           }
         }, null);
@@ -72,6 +66,24 @@ public class MetaJava {
       }
     }
     return classes;
+  }
+
+  private void getMethodMetas(Tree methodInfoTree, HashSet<MethodMeta> methods) {
+    runMethodVisitor(methodInfoTree, methods, (methodTree, methodAcc) -> {
+      var annotations = getAnnotationMetas(methodTree);
+      methodAcc.add(new MethodMeta(methodTree.getName().toString(), annotations));
+      return null;
+    });
+  }
+
+  private Set<AnnotationMeta> getAnnotationMetas(MethodTree methodTree) {
+    var annotations = new HashSet<AnnotationMeta>();
+    methodTree.getModifiers().getAnnotations()
+      .forEach(annotationTree -> {
+        Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).collect(Collectors.toSet());
+        annotations.add(new AnnotationMeta(annotationTree.getAnnotationType().toString(), args));
+      });
+    return unmodifiableSet(annotations);
   }
 
   private ImportMeta parseImport(ImportTree importTree) {

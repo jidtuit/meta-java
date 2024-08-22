@@ -27,7 +27,7 @@ public class MetaJava {
 
   public Set<ClassMeta> getMetaFrom(Collection<File> files) throws IOException {
     if (files == null || files.isEmpty()) {
-      throw new IllegalArgumentException("Parameter files is null or empty");
+      throw new IllegalArgumentException("ERROR: Parameter files is null or empty");
     }
 
     Set<ClassMeta> classes = new HashSet<>();

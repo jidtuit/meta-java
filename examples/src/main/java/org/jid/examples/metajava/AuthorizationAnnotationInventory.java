@@ -19,17 +19,17 @@ import org.jid.metajava.model.ClassMeta;
 
 public class AuthorizationAnnotationInventory {
 
-  private static final String SEARCH_FROM_CARBON_MODULE = "/Users/jidominguez/clarity/ws/backend/src/carbon-module";
-  private static final String SEARCH_FROM_TCFD = "/Users/jidominguez/clarity/ws/backend/src/tcfd";
+  private static final String SEARCH_FROM_ROOT_1= "/path/to/root1";
+  private static final String SEARCH_FROM_ROOT_2 = "/path/to/root2";
   private static final String JAVA_FILE_SUFFIX = "Controller.java";
   private static final String ANNOTATION_NAME = "Authorization";
   private static final String ANNOTATION_ARG_NAME = "anyResourceOf";
-  private static final Path OUTPUT_FILE = Path.of("/Users/jidominguez/Downloads/metaInfo.csv");
+  private static final Path OUTPUT_FILE = Path.of("/tmp/metaInfo.csv");
   private static final String SEPARATOR = ";";
 
   public static void main(String[] args) throws IOException {
-    Set<File> filesCarbon = searchForControllerJavaFiles(new File(SEARCH_FROM_CARBON_MODULE));
-    Set<File> filesTcfd = searchForControllerJavaFiles(new File(SEARCH_FROM_TCFD));
+    Set<File> filesCarbon = searchForControllerJavaFiles(new File(SEARCH_FROM_ROOT_1));
+    Set<File> filesTcfd = searchForControllerJavaFiles(new File(SEARCH_FROM_ROOT_2));
     Set<File> files = new HashSet<>(filesCarbon);
     files.addAll(filesTcfd);
     Set<ClassMeta> classes = new MetaJava().getMetaFrom(files);

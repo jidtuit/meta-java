@@ -146,7 +146,7 @@ class MetaJavaTest {
       assertThat(myMethodAnnotation11.args()).hasSize(1);
 
       String arg = myMethodAnnotation11.args().stream().findFirst().orElseThrow();
-      assertThat(arg).isEqualTo("\"annotation param 11\"");
+      assertThat(arg).isEqualTo("annotation param 11");
     }
 
     @Test

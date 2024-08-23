@@ -1,6 +1,7 @@
 package org.jid.metajava;
 
 import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.toSet;
 import static org.jid.metajava.VisitorFactory.runClassVisitor;
 import static org.jid.metajava.VisitorFactory.runMethodVisitor;
 
@@ -89,11 +90,19 @@ public class MetaJava {
     var annotations = new HashSet<AnnotationMeta>();
     methodTree.getModifiers().getAnnotations()
       .forEach(annotationTree -> {
-        Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).collect(Collectors.toSet());
+        Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).map(this::removeExtraQuotation).collect(toSet());
         String annotationName = annotationTree.getAnnotationType().toString();
         annotations.add(new AnnotationMeta(annotationName, args));
       });
     return unmodifiableSet(annotations);
+  }
+
+  // When there is only argValue of the annotation it returns a String with quotes inside (2 quotation marks at the beginning and at the end)
+  private String removeExtraQuotation(String s) {
+    if (!s.startsWith("\"")) {
+      return s;
+    }
+    return s.substring(1, s.length() - 1);
   }
 
   private record CompilationUnitMeta(String sourceFile, String packageName, List<ImportMeta> imports){}

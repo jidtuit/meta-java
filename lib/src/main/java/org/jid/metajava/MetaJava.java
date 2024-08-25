@@ -122,7 +122,6 @@ public class MetaJava {
 
   }
 
-
   private record CompilationUnitMeta(String sourceFile, String packageName, List<ImportMeta> imports) {
 
   }

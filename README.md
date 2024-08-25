@@ -11,12 +11,13 @@
     * Annotation arguments with real types instead of Strings
     * When annotation has argValue but no argName
         * ~~Remove extra quotation marks~~
-        * Return "default argName" instead of returning directly the arg value
+        * Return "default argName" instead of returning directly the arg value?? --> There's no info of default param in the compilation
+          unit
 * ~~Class annotations~~
 * Interfaces implemented by a class
 * Detect generic types in interfaces?
 * Class that inherits from another class
-    * Detect generic types?
+    * Detect generic types in inherited classes?
 * Class fields
     * Field name
     * Field type

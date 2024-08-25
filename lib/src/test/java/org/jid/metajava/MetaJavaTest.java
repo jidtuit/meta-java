@@ -30,7 +30,7 @@ class MetaJavaTest {
   void setup() {
     Path sampleRootPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "sampleCode", "org", "jid");
     sample1 = sampleRootPath.resolve("sample1").resolve("Class1.java").toFile();
-    sample2 = sampleRootPath.resolve("sample2").resolve("Class2.java").toFile();
+    sample2 = sampleRootPath.resolve("sample2").resolve("ClassEmpty.java").toFile();
   }
 
   @Nested
@@ -41,7 +41,7 @@ class MetaJavaTest {
 
       Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
 
-      assertThat(actual).map(ClassMeta::name).containsExactlyInAnyOrder("Class1", "Class2");
+      assertThat(actual).map(ClassMeta::name).containsExactlyInAnyOrder("Class1", "ClassEmpty");
     }
 
     @Test
@@ -61,9 +61,9 @@ class MetaJavaTest {
       assertThat(source1).containsSubsequence("meta-java", "lib", "src", "test", "resources", "sampleCode", "org", "jid", "sample1",
         "Class1.java");
 
-      String source2 = actual.stream().map(ClassMeta::sourceFileUri).filter(s -> s.endsWith("Class2.java")).findFirst().orElseThrow();
+      String source2 = actual.stream().map(ClassMeta::sourceFileUri).filter(s -> s.endsWith("ClassEmpty.java")).findFirst().orElseThrow();
       assertThat(source2).containsSubsequence("meta-java", "lib", "src", "test", "resources", "sampleCode", "org", "jid", "sample2",
-        "Class2.java");
+        "ClassEmpty.java");
     }
 
     @Test
@@ -77,8 +77,8 @@ class MetaJavaTest {
         "sample.staticimport.Class11.method1", "sample.staticimport.Class11.method2", "sample.staticimport.ClassWildcard1.*"
       );
 
-      ClassMeta class2 = getClassMeta(actual, "Class2");
-      assertThat(class2.imports()).isEmpty();
+      ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
+      assertThat(classEmpty.imports()).isEmpty();
     }
 
     @Test
@@ -92,8 +92,8 @@ class MetaJavaTest {
         "sample.nonstaticimport.Class12", "sample.nonstaticimport.Class13", "sample.nonstaticimport.wildcard.*"
       );
 
-      ClassMeta class2 = getClassMeta(actual, "Class2");
-      assertThat(class2.imports()).isEmpty();
+      ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
+      assertThat(classEmpty.imports()).isEmpty();
     }
 
     @Test
@@ -137,8 +137,8 @@ class MetaJavaTest {
 
       Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
 
-      ClassMeta class2 = getClassMeta(actual, "Class2");
-      assertThat(class2.annotations()).isEmpty();
+      ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
+      assertThat(classEmpty.annotations()).isEmpty();
     }
 
   }
@@ -160,8 +160,8 @@ class MetaJavaTest {
 
       Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
 
-      ClassMeta class2 = getClassMeta(actual, "Class2");
-      assertThat(class2.methods()).isEmpty();
+      ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
+      assertThat(classEmpty.methods()).isEmpty();
     }
   }
 

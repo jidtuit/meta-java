@@ -2,9 +2,15 @@ package org.jid.sample1;
 
 import static sample.staticimport.Class11.method1;
 import static sample.staticimport.Class11.method2;
+import static sample.staticimport.ClassWildcard1.*;
+
 import sample.nonstaticimport.Class12;
 import sample.nonstaticimport.Class13;
+import sample.nonstaticimport.wildcard.*;
 
+@MyClassAnnotation1
+@MyClassAnnotation2("default param 1")
+@MyClassAnnotation3(arg1 = {3, 2, 1}, arg2 = 24)
 public class Class1 {
 
   public static final String CONSTANT_1_1 = "constant1-1";

@@ -9,6 +9,7 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.Tree;
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +17,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.ImportMeta;
@@ -72,25 +72,27 @@ public class MetaJava {
       var methodsOfAClass = new HashSet<MethodMeta>();
       classTree.getMembers().forEach(classMember -> getMethodMetas(classMember, methodsOfAClass));
       String className = classTree.getSimpleName().toString();
-      classesAcc.add(new ClassMeta(className, unmodifiableSet(methodsOfAClass), packageName, sourceFile, imports));
+      Set<AnnotationMeta> annotations = getAnnotationMetas(classTree.getModifiers());
+      classesAcc.add(new ClassMeta(className, unmodifiableSet(methodsOfAClass), annotations, packageName, sourceFile, imports));
       return null;
     });
   }
 
   private void getMethodMetas(Tree methodInfoTree, HashSet<MethodMeta> methods) {
     runMethodVisitor(methodInfoTree, methods, (methodTree, methodAcc) -> {
-      var annotations = getAnnotationMetas(methodTree);
+      var annotations = getAnnotationMetas(methodTree.getModifiers());
       String methodName = methodTree.getName().toString();
       methodAcc.add(new MethodMeta(methodName, annotations));
       return null;
     });
   }
 
-  private Set<AnnotationMeta> getAnnotationMetas(MethodTree methodTree) {
+  private Set<AnnotationMeta> getAnnotationMetas(ModifiersTree modifiersTree) {
     var annotations = new HashSet<AnnotationMeta>();
-    methodTree.getModifiers().getAnnotations()
+    modifiersTree.getAnnotations()
       .forEach(annotationTree -> {
-        Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).map(this::removeExtraQuotation).collect(toSet());
+        Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).map(this::removeExtraQuotation)
+          .collect(toSet());
         String annotationName = annotationTree.getAnnotationType().toString();
         annotations.add(new AnnotationMeta(annotationName, args));
       });
@@ -105,6 +107,8 @@ public class MetaJava {
     return s.substring(1, s.length() - 1);
   }
 
-  private record CompilationUnitMeta(String sourceFile, String packageName, List<ImportMeta> imports){}
+  private record CompilationUnitMeta(String sourceFile, String packageName, List<ImportMeta> imports) {
+
+  }
 
 }

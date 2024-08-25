@@ -2,21 +2,26 @@ package org.jid.metajava;
 
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toSet;
+import static org.jid.metajava.VisitorFactory.runAssignmentlVisitor;
 import static org.jid.metajava.VisitorFactory.runClassVisitor;
+import static org.jid.metajava.VisitorFactory.runLiteralVisitor;
 import static org.jid.metajava.VisitorFactory.runMethodVisitor;
 
+import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.ImportTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree.Kind;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.jid.metajava.model.AnnotationArgument;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.ImportMeta;
@@ -35,12 +40,10 @@ public class MetaJava {
 
     var compilationUnitTrees = compilationUnitTreesFactory.getCompilationUnitTrees(files);
 
-    for (CompilationUnitTree compilationUnitTree : compilationUnitTrees) {
+    compilationUnitTrees.forEach(compilationUnitTree -> {
       var compilationUnitMeta = getCompilationUnitMeta(compilationUnitTree);
-      for (Tree tree : compilationUnitTree.getTypeDecls()) {
-        getClassMetas(tree, classes, compilationUnitMeta);
-      }
-    }
+      compilationUnitTree.getTypeDecls().forEach(tree -> getClassMetas(tree, classes, compilationUnitMeta));
+    });
 
     return classes;
   }
@@ -91,21 +94,34 @@ public class MetaJava {
     var annotations = new HashSet<AnnotationMeta>();
     modifiersTree.getAnnotations()
       .forEach(annotationTree -> {
-        Set<String> args = annotationTree.getArguments().stream().map(ExpressionTree::toString).map(this::removeExtraQuotation)
-          .collect(toSet());
+        Set<AnnotationArgument> args = getAnnotationArguments(annotationTree);
         String annotationName = annotationTree.getAnnotationType().toString();
         annotations.add(new AnnotationMeta(annotationName, args));
       });
     return unmodifiableSet(annotations);
   }
 
-  // When there is only argValue of the annotation it returns a String with quotes inside (2 quotation marks at the beginning and at the end)
-  private String removeExtraQuotation(String s) {
-    if (!s.startsWith("\"")) {
-      return s;
-    }
-    return s.substring(1, s.length() - 1);
+  private Set<AnnotationArgument> getAnnotationArguments(AnnotationTree annotationTree) {
+    return annotationTree.getArguments().stream()
+      .map(this::parseAnnotationArg)
+      .collect(toSet());
   }
+
+  private AnnotationArgument parseAnnotationArg(ExpressionTree argTree) {
+    if (argTree.getKind() == Kind.STRING_LITERAL) {
+      String argValue = runLiteralVisitor(argTree, null, (literalTree, param) -> literalTree.getValue().toString());
+      return new AnnotationArgument(null, argValue);
+    }
+
+    // argTree.getKind() == Kind.ASSIGNMENT
+    return runAssignmentlVisitor(argTree, null, ((assignmentTree, param) -> {
+      String argName = assignmentTree.getVariable().toString();
+      String argValue = assignmentTree.getExpression().toString();
+      return new AnnotationArgument(argName, argValue);
+    }));
+
+  }
+
 
   private record CompilationUnitMeta(String sourceFile, String packageName, List<ImportMeta> imports) {
 

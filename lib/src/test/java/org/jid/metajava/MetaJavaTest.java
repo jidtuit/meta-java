@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
+import org.jid.metajava.model.AnnotationArgument;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.Annotationable;
 import org.jid.metajava.model.ClassMeta;
@@ -114,7 +115,7 @@ class MetaJavaTest {
       ClassMeta class1 = getClassMeta(actual, "Class1");
       AnnotationMeta annotation = getAnnotationMeta(class1, "MyClassAnnotation2");
       assertThat(annotation.name()).isEqualTo("MyClassAnnotation2");
-      assertThat(annotation.args()).containsExactly("default param 1");
+      assertThat(annotation.args()).containsExactly(new AnnotationArgument(null, "default param 1"));
     }
 
     @Test
@@ -125,7 +126,10 @@ class MetaJavaTest {
       ClassMeta class1 = getClassMeta(actual, "Class1");
       AnnotationMeta annotation = getAnnotationMeta(class1, "MyClassAnnotation3");
       assertThat(annotation.name()).isEqualTo("MyClassAnnotation3");
-      assertThat(annotation.args()).containsExactlyInAnyOrder("arg1 = {3, 2, 1}", "arg2 = 24");
+      assertThat(annotation.args()).containsExactlyInAnyOrder(
+        new AnnotationArgument("arg1", "{3, 2, 1}"),
+        new AnnotationArgument("arg2", "24")
+      );
     }
 
     @Test
@@ -189,8 +193,8 @@ class MetaJavaTest {
       assertThat(myMethodAnnotation11.name()).isEqualTo("MyMethodAnnotation11");
       assertThat(myMethodAnnotation11.args()).hasSize(1);
 
-      String arg = myMethodAnnotation11.args().stream().findFirst().orElseThrow();
-      assertThat(arg).isEqualTo("annotation param 11");
+      AnnotationArgument arg = myMethodAnnotation11.args().stream().findFirst().orElseThrow();
+      assertThat(arg).isEqualTo(new AnnotationArgument(null, "annotation param 11"));
     }
 
     @Test
@@ -205,11 +209,11 @@ class MetaJavaTest {
       assertThat(MyMethodAnnotation12.name()).isEqualTo("MyMethodAnnotation12");
       assertThat(MyMethodAnnotation12.args()).hasSize(2);
 
-      String arg1Value = getAnnotationArgsMeta(MyMethodAnnotation12, "arg1");
-      assertThat(arg1Value).isEqualTo("arg1 = 42");
+      AnnotationArgument arg1Value = getAnnotationArgsMeta(MyMethodAnnotation12, "arg1");
+      assertThat(arg1Value).isEqualTo(new AnnotationArgument("arg1", "42"));
 
-      String arg2Value = getAnnotationArgsMeta(MyMethodAnnotation12, "arg2");
-      assertThat(arg2Value).isEqualTo("arg2 = {1, 2, 3}");
+      AnnotationArgument arg2Value = getAnnotationArgsMeta(MyMethodAnnotation12, "arg2");
+      assertThat(arg2Value).isEqualTo(new AnnotationArgument("arg2", "{1, 2, 3}"));
     }
 
     @Test
@@ -252,8 +256,12 @@ class MetaJavaTest {
     return element1.annotations().stream().filter(a -> annotationName.equals(a.name())).findFirst().orElseThrow();
   }
 
-  private String getAnnotationArgsMeta(AnnotationMeta annotationMeta, String argName) {
-    return annotationMeta.args().stream().filter(arg -> arg.startsWith(argName)).findFirst().orElseThrow();
+  private AnnotationArgument getAnnotationArgsMeta(AnnotationMeta annotationMeta, String argName) {
+    return annotationMeta.args().stream()
+      .filter(AnnotationArgument::hasName)
+      .filter(arg -> arg.name().startsWith(argName))
+      .findFirst()
+      .orElseThrow();
   }
 
 

@@ -7,14 +7,14 @@
     * Traverse through the tree in a generic way.
     * ~~Identify elements that can have annotations~~
 * Annotations:
-    * Split annotation argument in name and value
+    * ~~Split annotation argument in name and value~~
     * Annotation arguments with real types instead of Strings
     * When annotation has argValue but no argName
         * ~~Remove extra quotation marks~~
         * Return "default argName" instead of returning directly the arg value
 * ~~Class annotations~~
 * Interfaces implemented by a class
-    * Detect generic types?
+* Detect generic types in interfaces?
 * Class that inherits from another class
     * Detect generic types?
 * Class fields

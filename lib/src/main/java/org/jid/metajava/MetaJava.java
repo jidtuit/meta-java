@@ -24,6 +24,7 @@ import java.util.Set;
 import org.jid.metajava.model.AnnotationArgument;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.ClassMeta;
+import org.jid.metajava.model.ClassType;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
 
@@ -76,7 +77,8 @@ public class MetaJava {
       classTree.getMembers().forEach(classMember -> getMethodMetas(classMember, methodsOfAClass));
       String className = classTree.getSimpleName().toString();
       Set<AnnotationMeta> annotations = getAnnotationMetas(classTree.getModifiers());
-      classesAcc.add(new ClassMeta(className, unmodifiableSet(methodsOfAClass), annotations, packageName, sourceFile, imports));
+      var classType = ClassType.from(classTree.getKind().name());
+      classesAcc.add(new ClassMeta(className, classType, unmodifiableSet(methodsOfAClass), annotations, packageName, sourceFile, imports));
       return null;
     });
   }

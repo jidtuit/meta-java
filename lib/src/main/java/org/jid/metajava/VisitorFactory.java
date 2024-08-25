@@ -1,8 +1,13 @@
 package org.jid.metajava;
 
+import static com.sun.source.tree.Tree.Kind.ANNOTATION;
+import static com.sun.source.tree.Tree.Kind.ANNOTATION_TYPE;
 import static com.sun.source.tree.Tree.Kind.ASSIGNMENT;
 import static com.sun.source.tree.Tree.Kind.CLASS;
+import static com.sun.source.tree.Tree.Kind.ENUM;
+import static com.sun.source.tree.Tree.Kind.INTERFACE;
 import static com.sun.source.tree.Tree.Kind.METHOD;
+import static com.sun.source.tree.Tree.Kind.RECORD;
 import static com.sun.source.tree.Tree.Kind.STRING_LITERAL;
 
 import com.sun.source.tree.AssignmentTree;
@@ -11,12 +16,15 @@ import com.sun.source.tree.LiteralTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.util.SimpleTreeVisitor;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 class VisitorFactory {
 
+  private final static Set<Tree.Kind> CLASS_TYPES = Set.of(CLASS, INTERFACE, RECORD, ENUM, ANNOTATION_TYPE);
+
   static <R, P> R runClassVisitor(Tree tree, P param, BiFunction<ClassTree, P, R> f) {
-    if (tree.getKind() != CLASS) {
+    if (!CLASS_TYPES.contains(tree.getKind())) {
       return null;
     }
     return tree.accept(new SimpleTreeVisitor<>() {

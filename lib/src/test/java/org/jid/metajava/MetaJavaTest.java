@@ -3,17 +3,24 @@ package org.jid.metajava;
 import static java.util.function.Predicate.not;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jid.metajava.model.ClassType.ANNOTATION;
+import static org.jid.metajava.model.ClassType.CLASS;
+import static org.jid.metajava.model.ClassType.ENUM;
+import static org.jid.metajava.model.ClassType.INTERFACE;
+import static org.jid.metajava.model.ClassType.RECORD;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.jid.metajava.model.AnnotationArgument;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.Annotationable;
 import org.jid.metajava.model.ClassMeta;
+import org.jid.metajava.model.ClassType;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,14 +30,28 @@ import org.junit.jupiter.api.Test;
 class MetaJavaTest {
 
   private MetaJava metaJava = new MetaJava();
-  private File sample1;
-  private File sample2;
+  private File sampleClass1;
+  private File sampleClass2;
+  private File sampleInterface1;
+  private File sampleInterface2;
+  private File sampleRecord1;
+  private File sampleEnum1;
+  private File sampleAnnotation1;
+  private List<File> sampleClasses;
+  private List<File> sampleInterfaces;
 
   @BeforeEach
   void setup() {
     Path sampleRootPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "sampleCode", "org", "jid");
-    sample1 = sampleRootPath.resolve("sample1").resolve("Class1.java").toFile();
-    sample2 = sampleRootPath.resolve("sample2").resolve("ClassEmpty.java").toFile();
+    sampleClass1 = sampleRootPath.resolve("sample1").resolve("Class1.java").toFile();
+    sampleClass2 = sampleRootPath.resolve("sample2").resolve("ClassEmpty.java").toFile();
+    sampleInterface1 = sampleRootPath.resolve("sample1").resolve("Interface1.java").toFile();
+    sampleInterface2 = sampleRootPath.resolve("sample2").resolve("Interface2.java").toFile();
+    sampleRecord1 = sampleRootPath.resolve("sample1").resolve("Record1.java").toFile();
+    sampleEnum1 = sampleRootPath.resolve("sample1").resolve("Enum1.java").toFile();
+    sampleAnnotation1 = sampleRootPath.resolve("sample1").resolve("Annotation1.java").toFile();
+    sampleClasses = List.of(sampleClass1, sampleClass2);
+    sampleInterfaces = List.of(sampleInterface1, sampleInterface2);
   }
 
   @Nested
@@ -39,7 +60,7 @@ class MetaJavaTest {
     @Test
     void readClassName() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       assertThat(actual).map(ClassMeta::name).containsExactlyInAnyOrder("Class1", "ClassEmpty");
     }
@@ -47,15 +68,16 @@ class MetaJavaTest {
     @Test
     void readPackageInfo() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
-      assertThat(actual).map(ClassMeta::packageName).containsExactlyInAnyOrder("org.jid.sample1", "org.jid.sample2");
+      assertThat(actual).map(ClassMeta::packageName)
+        .containsExactlyInAnyOrder("org.jid.sample1", "org.jid.sample2");
     }
 
     @Test
     void readSourceFile() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       String source1 = actual.stream().map(ClassMeta::sourceFileUri).filter(s -> s.endsWith("Class1.java")).findFirst().orElseThrow();
       assertThat(source1).containsSubsequence("meta-java", "lib", "src", "test", "resources", "sampleCode", "org", "jid", "sample1",
@@ -69,7 +91,7 @@ class MetaJavaTest {
     @Test
     void readStaticImportInfo() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       List<String> staticImports = class1.imports().stream().filter(ImportMeta::isStatic).map(ImportMeta::importString).toList();
@@ -84,7 +106,7 @@ class MetaJavaTest {
     @Test
     void readNonStaticImportInfo() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       List<String> staticImports = class1.imports().stream().filter(not(ImportMeta::isStatic)).map(ImportMeta::importString).toList();
@@ -99,7 +121,7 @@ class MetaJavaTest {
     @Test
     void readClassAnnotationsWithNoArguments() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       AnnotationMeta annotation = getAnnotationMeta(class1, "MyClassAnnotation1");
@@ -110,7 +132,7 @@ class MetaJavaTest {
     @Test
     void readClassAnnotationsWithDefaultArgument() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       AnnotationMeta annotation = getAnnotationMeta(class1, "MyClassAnnotation2");
@@ -121,7 +143,7 @@ class MetaJavaTest {
     @Test
     void readClassAnnotationsWithMultipleArguments() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       AnnotationMeta annotation = getAnnotationMeta(class1, "MyClassAnnotation3");
@@ -135,10 +157,61 @@ class MetaJavaTest {
     @Test
     void readClassAnnotationsWhenThereIsNoAnnotation() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
       assertThat(classEmpty.annotations()).isEmpty();
+    }
+
+    @Nested
+    class ClassTypes {
+
+      private List<File> samplesClassTypes;
+
+      @BeforeEach
+      void setup() {
+        samplesClassTypes = List.of(sampleClass1, sampleInterface1, sampleRecord1, sampleEnum1, sampleAnnotation1);
+      }
+
+      @Test
+      void readClassType() throws IOException {
+        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+
+        ClassMeta clazz = getClassMeta(actual, "Class1");
+        assertThat(clazz.type()).isEqualTo(CLASS);
+      }
+
+      @Test
+      void readInterfaceType() throws IOException {
+        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+
+        ClassMeta clazz = getClassMeta(actual, "Interface1");
+        assertThat(clazz.type()).isEqualTo(INTERFACE);
+      }
+
+      @Test
+      void readRecordType() throws IOException {
+        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+
+        ClassMeta clazz = getClassMeta(actual, "Record1");
+        assertThat(clazz.type()).isEqualTo(RECORD);
+      }
+
+      @Test
+      void readEnumType() throws IOException {
+        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+
+        ClassMeta clazz = getClassMeta(actual, "Enum1");
+        assertThat(clazz.type()).isEqualTo(ENUM);
+      }
+
+      @Test
+      void readAnnotationType() throws IOException {
+        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+
+        ClassMeta clazz = getClassMeta(actual, "Annotation1");
+        assertThat(clazz.type()).isEqualTo(ANNOTATION);
+      }
     }
 
   }
@@ -149,7 +222,7 @@ class MetaJavaTest {
     @Test
     void readMethodNames() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       assertThat(class1.methods()).map(MethodMeta::name).containsExactlyInAnyOrder("m11", "m12", "noAnnotationMethod");
@@ -158,7 +231,7 @@ class MetaJavaTest {
     @Test
     void returnEmptyWhenNoMethodNames() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
       assertThat(classEmpty.methods()).isEmpty();
@@ -171,7 +244,7 @@ class MetaJavaTest {
     @Test
     void readAnnotationsWithoutArguments() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       MethodMeta methodMeta12 = getMethodMeta(class1, "m12");
@@ -184,7 +257,7 @@ class MetaJavaTest {
     @Test
     void readAnnotationsWithDefaultArgument() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       MethodMeta methodMeta12 = getMethodMeta(class1, "m11");
@@ -200,7 +273,7 @@ class MetaJavaTest {
     @Test
     void readAnnotationsWithSeveralArguments() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       MethodMeta methodMeta12 = getMethodMeta(class1, "m12");
@@ -219,7 +292,7 @@ class MetaJavaTest {
     @Test
     void readMethodWithNoAnnotations() throws IOException {
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sample1, sample2));
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       MethodMeta methodMeta12 = getMethodMeta(class1, "noAnnotationMethod");

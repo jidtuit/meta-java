@@ -11,10 +11,11 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+import org.jid.metajava.exceptions.ClassNotParseableException;
 
 class CompilationUnitTreesFactory {
 
-  Iterable<? extends CompilationUnitTree> getCompilationUnitTrees(Collection<File> files) throws IOException {
+  Iterable<? extends CompilationUnitTree> getCompilationUnitTrees(Collection<File> files) {
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8);
     Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(files);
@@ -23,6 +24,10 @@ class CompilationUnitTreesFactory {
     JavacTask javacTask =
       (JavacTask) compiler.getTask(null, fileManager, null, List.of("-proc:full"), null, compilationUnits);
 
-    return javacTask.parse();
+    try {
+      return javacTask.parse();
+    } catch (IOException e) {
+      throw new ClassNotParseableException(e);
+    }
   }
 }

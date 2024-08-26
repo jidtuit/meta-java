@@ -38,7 +38,7 @@ public class MetaJava {
 
   private final CompilationUnitTreesFactory compilationUnitTreesFactory = new CompilationUnitTreesFactory();
 
-  public Set<ClassMeta> getMetaFrom(Collection<File> files) throws IOException {
+  public Set<ClassMeta> getMetaFrom(Collection<File> files) {
     if (files == null || files.isEmpty()) {
       throw new IllegalArgumentException("ERROR: Parameter files is null or empty");
     }

@@ -3,6 +3,7 @@
 ## TODO list
 
 * ~~Refactor code to reduce cyclomatic complexity~~
+* Remove throwing a checked exception
 * Create Interfaces to:
     * Traverse through the tree in a generic way.
     * ~~Identify elements that can have annotations~~
@@ -16,8 +17,8 @@
 * ~~Class annotations~~
 * Interfaces implemented by a class
 * Detect generic types in interfaces?
-* Class that inherits from another class
-    * Detect generic types in inherited classes?
+* ~~Class that inherits from another class~~
+* Detect generic types in inherited classes?
 * Class fields
     * Field name
     * Field type

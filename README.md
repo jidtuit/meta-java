@@ -24,6 +24,7 @@
     * Accessor (public, private, etc)
     * isStatic?
     * Field annotations
+* Does record fields are treated as regular fields??
 * Imports
     * Split between package and class/wildcard
 * Methods
@@ -32,9 +33,11 @@
     * Detect generic types
     * Accessor (public, private, etc)
     * isStatic?
+* Interface methods with default implementation
 * Add search methods to look for an specific field or method or annotation or argument annotation.
 * Enum: Parse fields of the enum
 
 Limitations:
 
 * Annotation of type class or type array returned as a String
+* No synthetic methods returned (for records or any other class). Only the ones explicitly defined 

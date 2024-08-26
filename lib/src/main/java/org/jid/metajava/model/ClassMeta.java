@@ -5,6 +5,6 @@ import java.util.Set;
 
 public record ClassMeta(String name, ClassType type, Set<MethodMeta> methods, Set<AnnotationMeta> annotations, String packageName,
                         String sourceFileUri,
-                        List<ImportMeta> imports) implements Annotationable {
+                        List<ImportMeta> imports, Set<String> extendsFrom) implements Annotationable {
 
 }

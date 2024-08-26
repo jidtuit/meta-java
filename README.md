@@ -36,8 +36,11 @@
 * Interface methods with default implementation
 * Add search methods to look for an specific field or method or annotation or argument annotation.
 * Enum: Parse fields of the enum
+* Support sealed interfaces
+* Check if everything works ok with several classes defined in the same java file
 
 Limitations:
 
 * Annotation of type class or type array returned as a String
+* Extends and implements classes returned as a String
 * No synthetic methods returned (for records or any other class). Only the ones explicitly defined 

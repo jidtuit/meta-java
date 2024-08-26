@@ -35,6 +35,7 @@ class MetaJavaTest {
   private File sampleRecord1;
   private File sampleEnum1;
   private File sampleAnnotation1;
+  private File sampleAnnotation2;
   private List<File> sampleClasses;
   private List<File> samplesClassTypes;
 
@@ -48,6 +49,7 @@ class MetaJavaTest {
     sampleRecord1 = sampleRootPath.resolve("sample1").resolve("Record1.java").toFile();
     sampleEnum1 = sampleRootPath.resolve("sample1").resolve("Enum1.java").toFile();
     sampleAnnotation1 = sampleRootPath.resolve("sample1").resolve("Annotation1.java").toFile();
+    sampleAnnotation2 = sampleRootPath.resolve("sample2").resolve("Annotation2.java").toFile();
     sampleClasses = List.of(sampleClass1, sampleClass2);
     samplesClassTypes = List.of(sampleClass1, sampleInterface1, sampleRecord1, sampleEnum1, sampleAnnotation1);
   }
@@ -175,6 +177,7 @@ class MetaJavaTest {
         ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
         assertThat(classEmpty.annotations()).isEmpty();
       }
+
     }
 
 
@@ -189,6 +192,24 @@ class MetaJavaTest {
         ClassMeta clazz = getClassMeta(actual, "Class1");
         assertThat(clazz.type()).isEqualTo(CLASS);
       }
+
+      @Test
+      void readInheritanceInfoWhenClassExtendsFromAnotherClass() throws IOException {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleClass1));
+
+        ClassMeta class1 = getClassMeta(actual, "Class1");
+        assertThat(class1.extendsFrom()).containsExactly("ClassParent1");
+      }
+
+      @Test
+      void readNoInheritanceInfo() throws IOException {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleClass2));
+
+        ClassMeta class2 = getClassMeta(actual, "ClassEmpty");
+        assertThat(class2.extendsFrom()).isEmpty();
+      }
     }
 
     @Nested
@@ -200,6 +221,24 @@ class MetaJavaTest {
 
         ClassMeta clazz = getClassMeta(actual, "Interface1");
         assertThat(clazz.type()).isEqualTo(INTERFACE);
+      }
+
+      @Test
+      void readInheritanceInfoWhenInterfaceExtendsFromAnotherInterface() throws IOException {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleInterface1));
+
+        ClassMeta interface1 = getClassMeta(actual, "Interface1");
+        assertThat(interface1.extendsFrom()).containsExactlyInAnyOrder("InterfaceParent1", "InterfaceParent2");
+      }
+
+      @Test
+      void readNoInheritanceInfo() throws IOException {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleInterface2));
+
+        ClassMeta interface2 = getClassMeta(actual, "Interface2");
+        assertThat(interface2.extendsFrom()).isEmpty();
       }
     }
 
@@ -213,6 +252,15 @@ class MetaJavaTest {
         ClassMeta clazz = getClassMeta(actual, "Record1");
         assertThat(clazz.type()).isEqualTo(RECORD);
       }
+
+      @Test
+      void readNoInheritanceInfo() throws IOException {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleRecord1));
+
+        ClassMeta record1 = getClassMeta(actual, "Record1");
+        assertThat(record1.extendsFrom()).isEmpty();
+      }
     }
 
     @Nested
@@ -225,17 +273,37 @@ class MetaJavaTest {
         ClassMeta clazz = getClassMeta(actual, "Enum1");
         assertThat(clazz.type()).isEqualTo(ENUM);
       }
+
+      @Test
+      void readNoInheritanceInfo() throws IOException {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleEnum1));
+
+        ClassMeta enum1 = getClassMeta(actual, "Enum1");
+        assertThat(enum1.extendsFrom()).isEmpty();
+      }
     }
 
     @Nested
     class AnnotationType {
 
+      @Test
       void readAnnotationType() throws IOException {
         Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
 
         ClassMeta clazz = getClassMeta(actual, "Annotation1");
         assertThat(clazz.type()).isEqualTo(ANNOTATION);
       }
+
+      @Test
+      void readNoInheritanceInfo() throws IOException {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleAnnotation1));
+
+        ClassMeta annotation1 = getClassMeta(actual, "Annotation1");
+        assertThat(annotation1.extendsFrom()).isEmpty();
+      }
+
     }
 
 
@@ -342,8 +410,8 @@ class MetaJavaTest {
 
   }
 
-  private ClassMeta getClassMeta(Set<ClassMeta> actual, String Class1) {
-    return actual.stream().filter(c -> c.name().equals(Class1)).findFirst().orElseThrow();
+  private ClassMeta getClassMeta(Set<ClassMeta> actual, String name) {
+    return actual.stream().filter(c -> c.name().equals(name)).findFirst().orElseThrow();
   }
 
   private MethodMeta getMethodMeta(ClassMeta class1, String methodName) {

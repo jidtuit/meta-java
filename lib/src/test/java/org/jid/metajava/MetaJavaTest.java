@@ -38,7 +38,6 @@ class MetaJavaTest {
   private File sampleEnum1;
   private File sampleAnnotation1;
   private List<File> sampleClasses;
-  private List<File> sampleInterfaces;
 
   @BeforeEach
   void setup() {
@@ -51,7 +50,6 @@ class MetaJavaTest {
     sampleEnum1 = sampleRootPath.resolve("sample1").resolve("Enum1.java").toFile();
     sampleAnnotation1 = sampleRootPath.resolve("sample1").resolve("Annotation1.java").toFile();
     sampleClasses = List.of(sampleClass1, sampleClass2);
-    sampleInterfaces = List.of(sampleInterface1, sampleInterface2);
   }
 
   @Nested
@@ -130,7 +128,7 @@ class MetaJavaTest {
     }
 
     @Test
-    void readClassAnnotationsWithDefaultArgument() throws IOException {
+    void readClassAnnotationsWithDefaultArgumentAsAString() throws IOException {
 
       Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
 
@@ -138,6 +136,17 @@ class MetaJavaTest {
       AnnotationMeta annotation = getAnnotationMeta(class1, "MyClassAnnotation2");
       assertThat(annotation.name()).isEqualTo("MyClassAnnotation2");
       assertThat(annotation.args()).containsExactly(new AnnotationArgument(null, "default param 1"));
+    }
+
+    @Test
+    void readClassAnnotationsWithDefaultArgumentAsAClassReference() throws IOException {
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleAnnotation1));
+
+      ClassMeta class1 = getClassMeta(actual, "Annotation1");
+      AnnotationMeta annotation = getAnnotationMeta(class1, "Retention");
+      assertThat(annotation.name()).isEqualTo("Retention");
+      assertThat(annotation.args()).containsExactly(new AnnotationArgument(null, "RetentionPolicy.RUNTIME"));
     }
 
     @Test

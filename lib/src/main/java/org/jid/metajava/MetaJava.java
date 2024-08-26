@@ -114,6 +114,9 @@ public class MetaJava {
       String argValue = runLiteralVisitor(argTree, null, (literalTree, param) -> literalTree.getValue().toString());
       return new AnnotationArgument(null, argValue);
     }
+    if (argTree.getKind() == Kind.MEMBER_SELECT) {
+      return new AnnotationArgument(null, argTree.toString());
+    }
 
     // argTree.getKind() == Kind.ASSIGNMENT
     return runAssignmentlVisitor(argTree, null, ((assignmentTree, param) -> {

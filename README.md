@@ -33,4 +33,8 @@
     * Accessor (public, private, etc)
     * isStatic?
 * Add search methods to look for an specific field or method or annotation or argument annotation.
-* 
+* Enum: Parse fields of the enum
+
+Limitations:
+
+* Annotation of type class or type array returned as a String

@@ -17,7 +17,7 @@
 * Interfaces implemented by a class
 * Detect generic types in interfaces?
 * ~~Class that inherits from another class~~
-* Detect generic types in inherited classes?
+* ~~Detect generic types in inherited classes? --> Yes as Strings~~
 * Class fields
     * Field name
     * Field type
@@ -38,9 +38,15 @@
 * Enum: Parse fields of the enum
 * Support sealed interfaces
 * Check if everything works ok with several classes defined in the same java file
+* Generics support in:
+    * Methods
+    * Classes
+    * Interfaces
+    * Records?
+* Multiple class definition in one file
 
 Limitations:
 
 * Annotation of type class or type array returned as a String
-* Extends and implements classes returned as a String
+* Extends and implements classes returned as a String including generics
 * No synthetic methods returned (for records or any other class). Only the ones explicitly defined 

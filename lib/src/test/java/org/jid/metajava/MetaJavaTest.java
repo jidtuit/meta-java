@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 class MetaJavaTest {
 
   private MetaJava metaJava = new MetaJava();
+  private Path sampleRootPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "sampleCode", "org", "jid");
   private File sampleClass1;
   private File sampleClass2;
   private File sampleInterface1;
@@ -40,7 +41,6 @@ class MetaJavaTest {
 
   @BeforeEach
   void setup() {
-    Path sampleRootPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "sampleCode", "org", "jid");
     sampleClass1 = sampleRootPath.resolve("sample1").resolve("Class1.java").toFile();
     sampleClass2 = sampleRootPath.resolve("sample2").resolve("ClassEmpty.java").toFile();
     sampleInterface1 = sampleRootPath.resolve("sample1").resolve("Interface1.java").toFile();
@@ -202,6 +202,17 @@ class MetaJavaTest {
       }
 
       @Test
+      void readInheritanceInfoWhenClassExtendsFromAnotherClassWithGenerics() {
+
+        File sampleClass = sampleRootPath.resolve("sample1").resolve("ClassInheritanceWithGenerics.java").toFile();
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(
+          sampleClass));
+
+        ClassMeta class1 = getClassMeta(actual, "ClassInheritanceWithGenerics");
+        assertThat(class1.extendsFrom()).containsExactly("ClassParent2<ClassGeneric1>");
+      }
+
+      @Test
       void readNoInheritanceInfo() {
 
         Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleClass2));
@@ -223,12 +234,23 @@ class MetaJavaTest {
       }
 
       @Test
-      void readInheritanceInfoWhenInterfaceExtendsFromAnotherInterface() {
+      void readInheritanceInfoWhenInterfaceExtendsFromOtherInterfaces() {
 
         Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleInterface1));
 
         ClassMeta interface1 = getClassMeta(actual, "Interface1");
         assertThat(interface1.extendsFrom()).containsExactlyInAnyOrder("InterfaceParent1", "InterfaceParent2");
+      }
+
+      @Test
+      void readInheritanceInfoWhenInterfaceExtendsFromOtherInterfacesWithGenerics() {
+
+        File sampleInterface = sampleRootPath.resolve("sample1").resolve("Interface2ExtendWithGenerics.java").toFile();
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleInterface));
+
+        ClassMeta interface1 = getClassMeta(actual, "Interface2ExtendWithGenerics");
+        assertThat(interface1.extendsFrom()).containsExactlyInAnyOrder("InterfaceParent1", "InterfaceParent2<GenericInterface1>");
       }
 
       @Test

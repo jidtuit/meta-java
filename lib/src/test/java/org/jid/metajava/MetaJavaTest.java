@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
-import org.jid.metajava.exceptions.ClassNotParseableException;
 import org.jid.metajava.model.AnnotationArgument;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.Annotationable;
@@ -22,7 +21,6 @@ import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +29,6 @@ class MetaJavaTest {
   private MetaJava metaJava = new MetaJava();
   private File sampleClass1;
   private File sampleClass2;
-  private File notParseableClass;
   private File sampleInterface1;
   private File sampleInterface2;
   private File sampleRecord1;
@@ -46,7 +43,6 @@ class MetaJavaTest {
     Path sampleRootPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "sampleCode", "org", "jid");
     sampleClass1 = sampleRootPath.resolve("sample1").resolve("Class1.java").toFile();
     sampleClass2 = sampleRootPath.resolve("sample2").resolve("ClassEmpty.java").toFile();
-    notParseableClass = sampleRootPath.resolve("sample2").resolve("NotParseableClass.java").toFile();
     sampleInterface1 = sampleRootPath.resolve("sample1").resolve("Interface1.java").toFile();
     sampleInterface2 = sampleRootPath.resolve("sample2").resolve("Interface2.java").toFile();
     sampleRecord1 = sampleRootPath.resolve("sample1").resolve("Record1.java").toFile();

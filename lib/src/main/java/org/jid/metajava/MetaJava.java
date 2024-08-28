@@ -23,10 +23,9 @@ public class MetaJava {
       throw new IllegalArgumentException("ERROR: Parameter files is null or empty");
     }
 
-    Set<ClassMeta> classes = new HashSet<>();
-
     var compilationUnitTrees = compilationUnitTreesFactory.getCompilationUnitTrees(files);
 
+    Set<ClassMeta> classes = new HashSet<>();
     compilationUnitTrees.forEach(compilationUnitTree -> {
       var compilationUnitMeta = compilationUnitMetaProcessor.getMeta(compilationUnitTree);
       compilationUnitTree.getTypeDecls().forEach(tree -> classProcessor.getMetas(tree, classes, compilationUnitMeta));

@@ -3,17 +3,16 @@
 ## TODO list
 
 * ~~Refactor code to reduce cyclomatic complexity~~
-* Remove throwing a checked exception
+* ~~Remove throwing a checked exception~~
 * Create Interfaces to:
     * Traverse through the tree in a generic way.
     * ~~Identify elements that can have annotations~~
 * Annotations:
     * ~~Split annotation argument in name and value~~
-    * Annotation arguments with real types instead of Strings
-    * When annotation has argValue but no argName
+    * Annotation arguments with real types instead of Strings --> Where do we take that info? From the imports? Is there a way to do a
+      Class.forName()
+    * ~~When annotation has argValue but no argName~~
         * ~~Remove extra quotation marks~~
-        * Return "default argName" instead of returning directly the arg value?? --> There's no info of default param in the compilation
-          unit
 * ~~Class annotations~~
 * Interfaces implemented by a class
 * Detect generic types in interfaces?

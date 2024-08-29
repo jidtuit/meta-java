@@ -13,7 +13,8 @@ import org.junit.jupiter.params.provider.EnumSource.Mode;
 
 class ClassMetaTest {
 
-  @Test
+  @ParameterizedTest
+  @EnumSource(ClassType.class)
   void buildClassMeta() {
     var actual = new ClassMeta("name1", CLASS, Set.of(), Set.of(), "p1", "uri", Set.of(), Set.of());
     assertThat(actual).isNotNull();
@@ -37,9 +38,16 @@ class ClassMetaTest {
       .isInstanceOf(NullPointerException.class);
   }
 
+  @ParameterizedTest
+  @EnumSource(ClassType.class)
+  void buildClassMetaWithNullExtendsFrom() {
+    var actual = new ClassMeta("name1", CLASS, Set.of(), Set.of(), "p1", "uri", Set.of(), Set.of());
+    assertThat(actual).isNotNull();
+  }
+
   @Test
   void buildInterfaceMetaWithMultipleExtendsFrom() {
-    var actual = new ClassMeta("name1", INTERFACE, Set.of(), Set.of(), "p1", "uri", Set.of(), Set.of("P1", "P2"));
+    var actual = new ClassMeta("name1", INTERFACE, Set.of(), Set.of(), "p1", "uri", Set.of(), null);
     assertThat(actual).isNotNull();
   }
 

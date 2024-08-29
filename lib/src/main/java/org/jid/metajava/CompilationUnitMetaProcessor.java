@@ -1,8 +1,10 @@
 package org.jid.metajava;
 
+import static java.util.stream.Collectors.toUnmodifiableSet;
+
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ImportTree;
-import java.util.List;
+import java.util.Set;
 import org.jid.metajava.model.ImportMeta;
 
 class CompilationUnitMetaProcessor {
@@ -10,7 +12,7 @@ class CompilationUnitMetaProcessor {
   public CompilationUnitMeta getMeta(CompilationUnitTree compilationUnitTree) {
     String sourceFile = compilationUnitTree.getSourceFile().toUri().toString();
     String packageName = compilationUnitTree.getPackage().getPackageName().toString();
-    List<ImportMeta> imports = compilationUnitTree.getImports().stream().map(this::parseImport).toList();
+    Set<ImportMeta> imports = compilationUnitTree.getImports().stream().map(this::parseImport).collect(toUnmodifiableSet());
     return new CompilationUnitMeta(sourceFile, packageName, imports);
   }
 

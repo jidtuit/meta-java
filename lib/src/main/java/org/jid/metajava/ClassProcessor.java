@@ -9,7 +9,6 @@ import static org.jid.metajava.VisitorFactory.runClassVisitor;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.Tree;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.jid.metajava.model.AnnotationMeta;
@@ -31,7 +30,7 @@ class ClassProcessor {
   public void getMetas(Tree tree, Set<ClassMeta> classes, CompilationUnitMeta compilationUnitMeta) {
     String sourceFile = compilationUnitMeta.sourceFile();
     String packageName = compilationUnitMeta.packageName();
-    List<ImportMeta> imports = compilationUnitMeta.imports();
+    Set<ImportMeta> imports = compilationUnitMeta.imports();
 
     runClassVisitor(tree, classes, (classTree, classesAcc) -> {
       var methodsOfAClass = new HashSet<MethodMeta>();

@@ -53,4 +53,4 @@ Limitations:
 
 * Annotation of type class or type array returned as a String
 * Extends and implements classes returned as a String including generics
-* No synthetic methods returned (for records or any other class). Only the ones explicitly defined 
+* No synthetic methods returned (for records or enums). Only the ones explicitly defined in the source code

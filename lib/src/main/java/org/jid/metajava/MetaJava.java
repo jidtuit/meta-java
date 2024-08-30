@@ -8,7 +8,7 @@ import org.jid.metajava.model.ClassMeta;
 
 public class MetaJava {
 
-  private final CompilationUnitTreesFactory compilationUnitTreesFactory = new CompilationUnitTreesFactory();
+  private final CompilationUnitTreeFactory compilationUnitTreeFactory = new CompilationUnitTreeFactory();
   private final CompilationUnitMetaProcessor compilationUnitMetaProcessor = new CompilationUnitMetaProcessor();
   private final ClassProcessor classProcessor;
 
@@ -23,7 +23,7 @@ public class MetaJava {
       throw new IllegalArgumentException("ERROR: Parameter files is null or empty");
     }
 
-    var compilationUnitTrees = compilationUnitTreesFactory.getCompilationUnitTrees(files);
+    var compilationUnitTrees = compilationUnitTreeFactory.getCompilationUnitTrees(files);
 
     Set<ClassMeta> classes = new HashSet<>();
     compilationUnitTrees.forEach(compilationUnitTree -> {

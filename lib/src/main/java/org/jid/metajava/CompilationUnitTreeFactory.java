@@ -13,7 +13,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import org.jid.metajava.exceptions.ClassNotParseableException;
 
-class CompilationUnitTreesFactory {
+class CompilationUnitTreeFactory {
 
   Iterable<? extends CompilationUnitTree> getCompilationUnitTrees(Collection<File> files) {
     JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();

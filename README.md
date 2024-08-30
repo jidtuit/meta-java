@@ -28,7 +28,7 @@
     * Accessor (public, private, etc)
     * isStatic?
     * Field annotations
-* Does record fields are treated as regular fields??
+* Does record and enum fields are treated as regular fields??
 * Imports
     * Split between package and class/wildcard
 * Methods

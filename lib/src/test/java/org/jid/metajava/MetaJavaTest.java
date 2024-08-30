@@ -220,6 +220,35 @@ class MetaJavaTest {
         ClassMeta class2 = getClassMeta(actual, "ClassEmpty");
         assertThat(class2.extendsFrom()).isEmpty();
       }
+
+      @Test
+      void readInheritanceInfoWhenClassImplementsFromInterfaces() {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleClass1));
+
+        ClassMeta class1 = getClassMeta(actual, "Class1");
+        assertThat(class1.implementsFrom()).containsExactlyInAnyOrder("I1", "I2");
+      }
+
+      @Test
+      void readInheritanceInfoWhenClassImplementsFromInterfacesWithGenerics() {
+
+        File sampleClass = sampleRootPath.resolve("sample1").resolve("ClassInheritanceWithGenerics.java").toFile();
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(
+          sampleClass));
+
+        ClassMeta class1 = getClassMeta(actual, "ClassInheritanceWithGenerics");
+        assertThat(class1.implementsFrom()).containsExactlyInAnyOrder("I3<IGeneric1>", "I4<IGeneric2>");
+      }
+
+      @Test
+      void readNoInterfaceInheritanceInfo() {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleClass2));
+
+        ClassMeta class2 = getClassMeta(actual, "ClassEmpty");
+        assertThat(class2.implementsFrom()).isEmpty();
+      }
     }
 
     @Nested
@@ -261,6 +290,15 @@ class MetaJavaTest {
         ClassMeta interface2 = getClassMeta(actual, "Interface2");
         assertThat(interface2.extendsFrom()).isEmpty();
       }
+
+      @Test
+      void readNoInterfaceInheritanceInfo() {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleInterface2));
+
+        ClassMeta interface2 = getClassMeta(actual, "Interface2");
+        assertThat(interface2.implementsFrom()).isEmpty();
+      }
     }
 
     @Nested
@@ -281,6 +319,37 @@ class MetaJavaTest {
 
         ClassMeta record1 = getClassMeta(actual, "Record1");
         assertThat(record1.extendsFrom()).isEmpty();
+      }
+
+      @Test
+      void readInheritanceInfoWhenClassImplementsFromInterfaces() {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleRecord1));
+
+        ClassMeta record1 = getClassMeta(actual, "Record1");
+        assertThat(record1.implementsFrom()).containsExactlyInAnyOrder("IR1", "IR2");
+      }
+
+      @Test
+      void readInheritanceInfoWhenClassImplementsFromInterfacesWithGenerics() {
+
+        File sampleClass = sampleRootPath.resolve("sample1").resolve("Record2ImplementsWithGenerics.java").toFile();
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(
+          sampleClass));
+
+        ClassMeta record1 = getClassMeta(actual, "Record2ImplementsWithGenerics");
+        assertThat(record1.implementsFrom()).containsExactlyInAnyOrder("IR1<Generic1>", "IR2<Generic2>");
+      }
+
+      @Test
+      void readNoInterfaceInheritanceInfo() {
+
+        File sampleClass = sampleRootPath.resolve("sample1").resolve("Record3NoImplements.java").toFile();
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(
+          sampleClass));
+
+        ClassMeta record1 = getClassMeta(actual, "Record3NoImplements");
+        assertThat(record1.implementsFrom()).isEmpty();
       }
     }
 
@@ -323,6 +392,15 @@ class MetaJavaTest {
 
         ClassMeta annotation1 = getClassMeta(actual, "Annotation1");
         assertThat(annotation1.extendsFrom()).isEmpty();
+      }
+
+      @Test
+      void readNoInterfaceInheritanceInfo() {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sampleAnnotation1));
+
+        ClassMeta annotation1 = getClassMeta(actual, "Annotation1");
+        assertThat(annotation1.implementsFrom()).isEmpty();
       }
 
     }

@@ -14,8 +14,12 @@
     * ~~When annotation has argValue but no argName~~
         * ~~Remove extra quotation marks~~
 * ~~Class annotations~~
-* Interfaces implemented by a class
-* Detect generic types in interfaces?
+* ~~Interfaces implemented by a class~~
+    * ~~Do not support implements:~~
+        * ~~Interfaces, annotations~~
+    * ~~Support implements:~~
+        * ~~Classes, records, enums~~
+* ~~Detect generic types in interfaces? --> As Strings~~
 * ~~Class that inherits from another class~~
 * ~~Detect generic types in inherited classes? --> Yes as Strings~~
 * Class fields

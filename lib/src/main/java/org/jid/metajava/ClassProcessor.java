@@ -1,13 +1,13 @@
 package org.jid.metajava;
 
-import static com.sun.source.tree.Tree.Kind.CLASS;
-import static com.sun.source.tree.Tree.Kind.INTERFACE;
+
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static org.jid.metajava.VisitorFactory.runClassVisitor;
 
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree.Kind;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -18,6 +18,8 @@ import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
 
 class ClassProcessor {
+
+  private static final Set<Kind> SUPPORT_IMPLEMENTS = Set.of(Kind.CLASS, Kind.RECORD, Kind.ENUM);
 
   private final MethodProcessor methodProcessor;
   private final AnnotationProcessor annotationProcessor;
@@ -39,20 +41,22 @@ class ClassProcessor {
       Set<AnnotationMeta> annotations = annotationProcessor.getMetas(classTree.getModifiers());
       var classType = ClassType.from(classTree.getKind().name());
       Set<String> extendsFrom = getExtendsFrom(classTree);
+      Set<String> implementsFrom = getImplementsFrom(classTree);
 
       classesAcc.add(
-        new ClassMeta(className, classType, unmodifiableSet(methodsOfAClass), annotations, packageName, sourceFile, imports, extendsFrom)
+        new ClassMeta(className, classType, unmodifiableSet(methodsOfAClass), annotations, packageName, sourceFile, imports, extendsFrom,
+          implementsFrom)
       );
       return null;
     });
   }
 
-  private static Set<String> getExtendsFrom(ClassTree classTree) {
-    if (classTree.getKind() != CLASS && classTree.getKind() != INTERFACE) {
+  private Set<String> getExtendsFrom(ClassTree classTree) {
+    if (classTree.getKind() != Kind.CLASS && classTree.getKind() != Kind.INTERFACE) {
       return Set.of();
     }
 
-    if (classTree.getKind() == CLASS) {
+    if (classTree.getKind() == Kind.CLASS) {
       return classTree.getExtendsClause() == null ? Set.of() : Set.of(classTree.getExtendsClause().toString());
     }
     // Kind == INTERFACE
@@ -62,6 +66,19 @@ class ClassProcessor {
 
     var interfaceExtendsRaw = classTree.getImplementsClause().toString().split(",");
     return Stream.of(interfaceExtendsRaw).map(String::trim).collect(toUnmodifiableSet());
+  }
+
+  private Set<String> getImplementsFrom(ClassTree classTree) {
+    if (!SUPPORT_IMPLEMENTS.contains(classTree.getKind())) {
+      return Set.of();
+    }
+
+    if (classTree.getImplementsClause() == null || classTree.getImplementsClause().toString().isBlank()) {
+      return Set.of();
+    }
+
+    var implementsFromRaw = classTree.getImplementsClause().toString().split(",");
+    return Stream.of(implementsFromRaw).map(String::trim).collect(toUnmodifiableSet());
   }
 
 }

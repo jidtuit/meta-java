@@ -8,6 +8,8 @@ import static org.jid.metajava.model.ClassType.CLASS;
 import static org.jid.metajava.model.ClassType.ENUM;
 import static org.jid.metajava.model.ClassType.INTERFACE;
 import static org.jid.metajava.model.ClassType.RECORD;
+import static org.jid.metajava.model.Modifier.*;
+import static org.jid.metajava.model.Modifier.PUBLIC;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -16,10 +18,12 @@ import java.util.List;
 import java.util.Set;
 import org.jid.metajava.model.AnnotationArgument;
 import org.jid.metajava.model.AnnotationMeta;
-import org.jid.metajava.model.Annotationable;
+import org.jid.metajava.model.AnnotationSupport;
 import org.jid.metajava.model.ClassMeta;
+import org.jid.metajava.model.FieldMeta;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
+import org.jid.metajava.model.Modifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -372,6 +376,7 @@ class MetaJavaTest {
         ClassMeta enum1 = getClassMeta(actual, "Enum1");
         assertThat(enum1.extendsFrom()).isEmpty();
       }
+
     }
 
     @Nested
@@ -431,7 +436,7 @@ class MetaJavaTest {
   }
 
   @Nested
-  class MethodAnnotationsMeta {
+  class AnnotationsMetaTests {
 
     @Test
     void readAnnotationsWithoutArguments() {
@@ -495,6 +500,165 @@ class MetaJavaTest {
   }
 
   @Nested
+  class FieldMetaTests {
+
+    @Test
+    void readFieldNames() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      assertThat(classMeta.fields()).map(FieldMeta::name)
+        .containsExactlyInAnyOrder("CONSTANT_1_1", "answer", "notInitVar", "expressionVar");
+    }
+
+    @Test
+    void readTypes() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      assertThat(classMeta.fields()).map(FieldMeta::type)
+        .containsExactlyInAnyOrder("String", "int", "Double", "float");
+    }
+
+    @Test
+    void readInitialValue() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      assertThat(classMeta.fields()).map(FieldMeta::initializer)
+        .containsExactlyInAnyOrder("constant1-1", "42", null, "1.0F + 1.0F");
+    }
+
+    @Test
+    void readAnnotationsWhenPresent() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      FieldMeta field = getFieldMeta(classMeta, "answer");
+      assertThat(field.annotations()).map(AnnotationMeta::name).containsExactly("MeaningOfLifeUniverseAndEverythingElse");
+    }
+
+    @Test
+    void readNoAnnotationsWhenNotPresent() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      FieldMeta field = getFieldMeta(classMeta, "expressionVar");
+      assertThat(field.annotations()).isEmpty();
+    }
+
+    @Test
+    void readClassWithNoFields() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass2));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      assertThat(classMeta.fields()).isEmpty();
+    }
+
+    @Test
+    void readEnumValuesAsFields() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleEnum1));
+
+      ClassMeta clazz = getClassMeta(actual, "Enum1");
+
+      FieldMeta value1 = getFieldMeta(clazz, "VAR1");
+      assertThat(value1.name()).isEqualTo("VAR1");
+      assertThat(value1.type()).isEqualTo("Enum1");
+      assertThat(value1.initializer()).isEqualTo("new Enum1(\"hello\")");
+      assertThat(value1.modifiers()).containsExactlyInAnyOrder(PUBLIC, STATIC, FINAL);
+      assertThat(value1.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
+
+      FieldMeta value2 = getFieldMeta(clazz, "VAR2");
+      assertThat(value2.name()).isEqualTo("VAR2");
+      assertThat(value2.type()).isEqualTo("Enum1");
+      assertThat(value2.initializer()).isEqualTo("new Enum1()");
+      assertThat(value2.modifiers()).containsExactlyInAnyOrder(PUBLIC, STATIC, FINAL);
+      assertThat(value2.annotations()).isEmpty();
+
+      FieldMeta enumField = getFieldMeta(clazz, "initVar");
+      assertThat(enumField.name()).isEqualTo("initVar");
+      assertThat(enumField.type()).isEqualTo("String");
+      assertThat(enumField.initializer()).isNull();
+      assertThat(enumField.modifiers()).containsExactlyInAnyOrder(PRIVATE, FINAL);
+      assertThat(enumField.annotations()).isEmpty();
+    }
+
+    @Test
+    void readRecordParamsAsFields() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleRecord1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+
+      FieldMeta param1 = getFieldMeta(classMeta, "param1");
+      assertThat(param1.name()).isEqualTo("param1");
+      assertThat(param1.type()).isEqualTo("String");
+      assertThat(param1.initializer()).isNull();
+      assertThat(param1.modifiers()).containsExactlyInAnyOrder(FINAL, PRIVATE);
+      assertThat(param1.annotations()).isEmpty();
+
+      FieldMeta param2 = getFieldMeta(classMeta, "param2");
+      assertThat(param2.name()).isEqualTo("param2");
+      assertThat(param2.type()).isEqualTo("int");
+      assertThat(param2.initializer()).isNull();
+      assertThat(param2.modifiers()).containsExactlyInAnyOrder(FINAL, PRIVATE);
+      assertThat(param2.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
+
+      FieldMeta myConst = getFieldMeta(classMeta, "MY_CONST");
+      assertThat(myConst.name()).isEqualTo("MY_CONST");
+      assertThat(myConst.type()).isEqualTo("Integer");
+      assertThat(myConst.initializer()).isEqualTo("42");
+      assertThat(myConst.modifiers()).containsExactlyInAnyOrder(PUBLIC, FINAL, STATIC);
+      assertThat(myConst.annotations()).isEmpty();
+    }
+
+    @Test
+    void readInterfaceConstantsAsFields() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleInterface1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+
+      FieldMeta myConst = getFieldMeta(classMeta, "MY_CONST_I");
+      assertThat(myConst.name()).isEqualTo("MY_CONST_I");
+      assertThat(myConst.type()).isEqualTo("Float");
+      assertThat(myConst.initializer()).isEqualTo("42.0F");
+      assertThat(myConst.modifiers()).isEmpty();
+      assertThat(myConst.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
+    }
+
+  }
+
+  @Nested
+  class ModifierMetaTests {
+
+    @Test
+    void readMultipleModifiers() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+
+      FieldMeta field1 = getFieldMeta(classMeta, "CONSTANT_1_1");
+      assertThat(field1.modifiers()).containsExactlyInAnyOrder(PUBLIC, STATIC, FINAL);
+
+      FieldMeta field2 = getFieldMeta(classMeta, "answer");
+      assertThat(field2.modifiers()).containsExactlyInAnyOrder(PRIVATE);
+
+      FieldMeta field3 = getFieldMeta(classMeta, "expressionVar");
+      assertThat(field3.modifiers()).containsExactlyInAnyOrder(PROTECTED, VOLATILE);
+    }
+
+    @Test
+    void readClassWithNoModifiers() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+
+      FieldMeta field3 = getFieldMeta(classMeta, "notInitVar");
+      assertThat(field3.modifiers()).isEmpty();
+    }
+
+  }
+
+  @Nested
   class InputParamTests {
 
     @Test
@@ -517,8 +681,12 @@ class MetaJavaTest {
     return class1.methods().stream().filter(m -> methodName.equals(m.name())).findFirst().orElseThrow();
   }
 
-  private AnnotationMeta getAnnotationMeta(Annotationable element1, String annotationName) {
+  private AnnotationMeta getAnnotationMeta(AnnotationSupport element1, String annotationName) {
     return element1.annotations().stream().filter(a -> annotationName.equals(a.name())).findFirst().orElseThrow();
+  }
+
+  private FieldMeta getFieldMeta(ClassMeta class1, String fieldName) {
+    return class1.fields().stream().filter(f -> fieldName.equals(f.name())).findFirst().orElseThrow();
   }
 
   private AnnotationArgument getAnnotationArgsMeta(AnnotationMeta annotationMeta, String argName) {

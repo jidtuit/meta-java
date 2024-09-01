@@ -14,8 +14,10 @@ import sample.nonstaticimport.wildcard.*;
 public class Class1 extends ClassParent1 implements I1, I2 {
 
   public static final String CONSTANT_1_1 = "constant1-1";
+  @MeaningOfLifeUniverseAndEverythingElse
   private int answer = 42;
-  private int notInitVar;
+  Double notInitVar;
+  protected volatile float expressionVar = 1f + 1f;
 
   @MyMethodAnnotation11("annotation param 11")
   public void m11() {

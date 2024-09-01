@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.ClassType;
+import org.jid.metajava.model.FieldMeta;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
 
@@ -23,10 +24,12 @@ class ClassProcessor {
 
   private final MethodProcessor methodProcessor;
   private final AnnotationProcessor annotationProcessor;
+  private final FieldProcessor fieldProcessor;
 
-  ClassProcessor(MethodProcessor methodProcessor, AnnotationProcessor annotationProcessor) {
+  ClassProcessor(MethodProcessor methodProcessor, AnnotationProcessor annotationProcessor, FieldProcessor fieldProcessor) {
     this.methodProcessor = methodProcessor;
     this.annotationProcessor = annotationProcessor;
+    this.fieldProcessor = fieldProcessor;
   }
 
   public void getMetas(Tree tree, Set<ClassMeta> classes, CompilationUnitMeta compilationUnitMeta) {
@@ -36,7 +39,14 @@ class ClassProcessor {
 
     runClassVisitor(tree, classes, (classTree, classesAcc) -> {
       var methodsOfAClass = new HashSet<MethodMeta>();
-      classTree.getMembers().forEach(classMember -> methodProcessor.getMetas(classMember, methodsOfAClass));
+      Set<FieldMeta> fieldsOfAClass = new HashSet<>();
+      classTree.getMembers().forEach(classMember -> {
+        if (classMember.getKind() == Kind.METHOD) {
+          methodProcessor.getMetas(classMember, methodsOfAClass);
+        } else if (classMember.getKind() == Kind.VARIABLE) {
+          fieldProcessor.getMetas(classMember, fieldsOfAClass);
+        }
+      });
       String className = classTree.getSimpleName().toString();
       Set<AnnotationMeta> annotations = annotationProcessor.getMetas(classTree.getModifiers());
       var classType = ClassType.from(classTree.getKind().name());
@@ -45,7 +55,7 @@ class ClassProcessor {
 
       classesAcc.add(
         new ClassMeta(className, classType, unmodifiableSet(methodsOfAClass), annotations, packageName, sourceFile, imports, extendsFrom,
-          implementsFrom)
+          implementsFrom, unmodifiableSet(fieldsOfAClass))
       );
       return null;
     });

@@ -22,13 +22,13 @@
 * ~~Detect generic types in interfaces? --> As Strings~~
 * ~~Class that inherits from another class~~
 * ~~Detect generic types in inherited classes? --> Yes as Strings~~
-* Class fields
-    * Field name
-    * Field type
-    * Accessor (public, private, etc)
-    * isStatic?
-    * Field annotations
-* Does record and enum fields are treated as regular fields??
+* ~~Class fields~~
+    * ~~Field name~~
+    * ~~Field type~~
+    * ~~Accessor (public, private, etc)~~
+    * ~~isStatic?~~
+    * ~~Field annotations~~
+* ~~Does record and enum fields are treated as regular fields?? --> YES~~
 * Imports
     * Split between package and class/wildcard
 * Methods
@@ -39,14 +39,14 @@
     * isStatic?
 * Interface methods with default implementation
 * Add search methods to look for an specific field or method or annotation or argument annotation.
-* Enum: Parse fields of the enum
-* Support sealed interfaces
+* ~~Enum: Parse fields of the enum~~
+* Support sealed interfaces -> Sealed should be one of the modifiers of an interface
 * Check if everything works ok with several classes defined in the same java file
 * Generics support in:
     * Methods
     * Classes
     * Interfaces
-    * Records?
+    * Records
 * Multiple class definition in one file
 
 Limitations:
@@ -54,3 +54,8 @@ Limitations:
 * Annotation of type class or type array returned as a String
 * Extends and implements classes returned as a String including generics
 * No synthetic methods returned (for records or enums). Only the ones explicitly defined in the source code
+* ... but there are synthetic modifiers for fields
+* Float values in initializers are transformed by the java compiler. For example:
+    * Source code: Double myVar = 42;
+    * Is returned by the library as a field with the initializer that equals to 42.0F.
+* 

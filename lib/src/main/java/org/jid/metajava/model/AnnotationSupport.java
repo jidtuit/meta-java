@@ -2,7 +2,7 @@ package org.jid.metajava.model;
 
 import java.util.Set;
 
-public interface Annotationable {
+public interface AnnotationSupport {
 
   Set<AnnotationMeta> annotations();
 

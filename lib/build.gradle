@@ -11,18 +11,11 @@ repositories {
 }
 
 dependencies {
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    //api libs.commons.math3
-
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    //implementation libs.guava
-
     testImplementation libs.junit.jupiter
     testImplementation libs.assertj.core
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
@@ -45,6 +38,5 @@ jar {
 }
 
 tasks.named('test') {
-    // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }

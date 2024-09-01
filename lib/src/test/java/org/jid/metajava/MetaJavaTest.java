@@ -23,7 +23,6 @@ import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.FieldMeta;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
-import org.jid.metajava.model.Modifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -39,7 +38,6 @@ class MetaJavaTest {
   private File sampleRecord1;
   private File sampleEnum1;
   private File sampleAnnotation1;
-  private File sampleAnnotation2;
   private List<File> sampleClasses;
   private List<File> samplesClassTypes;
 
@@ -52,7 +50,6 @@ class MetaJavaTest {
     sampleRecord1 = sampleRootPath.resolve("sample1").resolve("Record1.java").toFile();
     sampleEnum1 = sampleRootPath.resolve("sample1").resolve("Enum1.java").toFile();
     sampleAnnotation1 = sampleRootPath.resolve("sample1").resolve("Annotation1.java").toFile();
-    sampleAnnotation2 = sampleRootPath.resolve("sample2").resolve("Annotation2.java").toFile();
     sampleClasses = List.of(sampleClass1, sampleClass2);
     samplesClassTypes = List.of(sampleClass1, sampleInterface1, sampleRecord1, sampleEnum1, sampleAnnotation1);
   }
@@ -433,6 +430,7 @@ class MetaJavaTest {
       ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
       assertThat(classEmpty.methods()).isEmpty();
     }
+
   }
 
   @Nested

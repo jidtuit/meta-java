@@ -37,7 +37,7 @@
     * Detect generic types
     * Accessor (public, private, etc)
     * isStatic?
-* Interface methods with default implementation
+* Interface methods with default implementation -> Depends on full implementation of methods meta.
 * Add search methods to look for an specific field or method or annotation or argument annotation.
 * ~~Enum: Parse fields of the enum~~
 * Support sealed interfaces -> Sealed should be one of the modifiers of an interface

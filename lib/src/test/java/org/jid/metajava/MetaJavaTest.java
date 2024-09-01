@@ -178,6 +178,31 @@ class MetaJavaTest {
         assertThat(classEmpty.annotations()).isEmpty();
       }
 
+      @Test
+      void readMultipleClassesDefinedInOneFile() {
+        File multiClassFile = sampleRootPath.resolve("sample1").resolve("MultipleClassIn1File.java").toFile();
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(multiClassFile));
+
+        ClassMeta class1 = getClassMeta(actual, "MultipleClassIn1File");
+        assertThat(class1.methods()).map(MethodMeta::name).containsExactly("m1");
+
+        ClassMeta class2 = getClassMeta(actual, "MultipleClassIn1File2");
+        assertThat(class2.methods()).map(MethodMeta::name).containsExactly("m2");
+
+        ClassMeta record1 = getClassMeta(actual, "MultipleClassFileRecord");
+        assertThat(record1.fields()).map(FieldMeta::name).containsExactly("field1");
+
+        ClassMeta enum1 = getClassMeta(actual, "MultipleClassFileEnum");
+        assertThat(enum1.fields()).map(FieldMeta::name).containsExactlyInAnyOrder("VAR1", "VAR2");
+
+        ClassMeta interface1 = getClassMeta(actual, "MultipleClassFileInterface");
+        assertThat(interface1.methods()).map(MethodMeta::name).containsExactly("mInterface1");
+
+        ClassMeta annotation1 = getClassMeta(actual, "MultipleClassFileAnnotation");
+        assertThat(annotation1.methods()).map(MethodMeta::name).containsExactly("value");
+      }
+
     }
 
 

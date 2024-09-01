@@ -48,6 +48,7 @@
     * Interfaces
     * Records
 * Multiple class definition in one file
+* Inner classes / records
 * Split MetaJavaTest into different classes
 
 Limitations:

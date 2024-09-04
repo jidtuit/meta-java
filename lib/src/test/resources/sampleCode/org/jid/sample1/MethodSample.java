@@ -4,6 +4,13 @@ import java.io.IOException;
 
 public class MethodSample {
 
+  // How should we treat constructors... as a method? It's own product? Constructors retunr null for returnType
+  public MethodSample() {
+  }
+
+  public MethodSample(String s) {
+  }
+
   public void m1() {
   }
 
@@ -11,8 +18,8 @@ public class MethodSample {
     return 42;
   }
 
-  private String m3() {
-    return "Hello World!";
+  private StringBuilder m3() {
+    return new StringBuilder("HelloWorld");
   }
 
   protected Double m4(Integer p1, int p2) {

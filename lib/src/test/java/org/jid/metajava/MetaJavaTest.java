@@ -450,12 +450,20 @@ class MetaJavaTest {
     }
 
     @Test
+    void returnEmptyWhenNoMethodNames() {
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
+
+      ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
+      assertThat(classEmpty.methods()).isEmpty();
+    }
+
+    @Test
     void readPublicModifiers() {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "m1");
-      assertThat(methodMeta.name()).isEqualTo("m1");
       assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PUBLIC);
     }
 
@@ -465,7 +473,6 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "m2");
-      assertThat(methodMeta.name()).isEqualTo("m2");
       assertThat(methodMeta.modifiers()).isEmpty();
     }
 
@@ -475,7 +482,6 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "m4");
-      assertThat(methodMeta.name()).isEqualTo("m4");
       assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PROTECTED);
     }
 
@@ -485,7 +491,6 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "m3");
-      assertThat(methodMeta.name()).isEqualTo("m3");
       assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PRIVATE);
     }
 
@@ -495,7 +500,6 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "staticMethod");
-      assertThat(methodMeta.name()).isEqualTo("staticMethod");
       assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(STATIC, PUBLIC);
     }
 
@@ -505,17 +509,42 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "annotatedMethod");
-      assertThat(methodMeta.name()).isEqualTo("annotatedMethod");
       assertThat(methodMeta.annotations()).map(AnnotationMeta::name).containsExactlyInAnyOrder("Annotated");
     }
 
     @Test
-    void returnEmptyWhenNoMethodNames() {
+    void readVoidReturnType() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
 
-      Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClasses);
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m1");
+      assertThat(methodMeta.returnType()).isEqualTo("void");
+    }
 
-      ClassMeta classEmpty = getClassMeta(actual, "ClassEmpty");
-      assertThat(classEmpty.methods()).isEmpty();
+    @Test
+    void readPrimitiveReturnType() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m2");
+      assertThat(methodMeta.returnType()).isEqualTo("int");
+    }
+
+    @Test
+    void readObjectReturnType() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m3");
+      assertThat(methodMeta.returnType()).isEqualTo("StringBuilder");
+    }
+
+    @Test
+    void ignoreConstructors() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      assertThat(classMeta.methods()).map(MethodMeta::name).doesNotContainSubsequence("<init>");
     }
 
   }

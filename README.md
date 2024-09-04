@@ -35,6 +35,7 @@
     * Params, param types and param annotations
     * Return type
     * Throws exceptions
+    * Class constructors
     * ~~Modifiers:~~
         * ~~Accessor (public, private, etc)~~
         * ~~isStatic?~~

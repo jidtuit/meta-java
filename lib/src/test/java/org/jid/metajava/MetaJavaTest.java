@@ -454,8 +454,8 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      MethodMeta methodMeta = getMethodMeta(classMeta, "publicMethod");
-      assertThat(methodMeta.name()).isEqualTo("publicMethod");
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m1");
+      assertThat(methodMeta.name()).isEqualTo("m1");
       assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PUBLIC);
     }
 
@@ -464,8 +464,8 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      MethodMeta methodMeta = getMethodMeta(classMeta, "friendlyMethod");
-      assertThat(methodMeta.name()).isEqualTo("friendlyMethod");
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m2");
+      assertThat(methodMeta.name()).isEqualTo("m2");
       assertThat(methodMeta.modifiers()).isEmpty();
     }
 
@@ -474,8 +474,8 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      MethodMeta methodMeta = getMethodMeta(classMeta, "protectedMethod");
-      assertThat(methodMeta.name()).isEqualTo("protectedMethod");
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m4");
+      assertThat(methodMeta.name()).isEqualTo("m4");
       assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PROTECTED);
     }
 
@@ -484,8 +484,8 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      MethodMeta methodMeta = getMethodMeta(classMeta, "privateMethod");
-      assertThat(methodMeta.name()).isEqualTo("privateMethod");
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m3");
+      assertThat(methodMeta.name()).isEqualTo("m3");
       assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PRIVATE);
     }
 

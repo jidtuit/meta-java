@@ -34,10 +34,10 @@
 * Methods
     * Params, param types and param annotations
     * Return type
-    * Detect generic types
-    * Modifiers:
-        * Accessor (public, private, etc)
-        * isStatic?
+    * Throws exceptions
+    * ~~Modifiers:~~
+        * ~~Accessor (public, private, etc)~~
+        * ~~isStatic?~~
 * Interface methods with default implementation -> Depends on full implementation of methods meta.
 * Add search methods to look for an specific field or method or annotation or argument annotation.
 * ~~Enum: Parse fields of the enum~~

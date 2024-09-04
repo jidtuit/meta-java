@@ -4,18 +4,18 @@ import java.io.IOException;
 
 public class MethodSample {
 
-  public void publicMethod() {
+  public void m1() {
   }
 
-  int friendlyMethod() {
+  int m2() {
     return 42;
   }
 
-  private String privateMethod() {
+  private String m3() {
     return "Hello World!";
   }
 
-  protected Double protectedMethod(Integer p1, int p2) {
+  protected Double m4(Integer p1, int p2) {
     return p1 + p2;
   }
 

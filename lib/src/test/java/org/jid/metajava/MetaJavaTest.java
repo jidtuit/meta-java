@@ -38,6 +38,7 @@ class MetaJavaTest {
   private File sampleRecord1;
   private File sampleEnum1;
   private File sampleAnnotation1;
+  private File sampleMethod;
   private List<File> sampleClasses;
   private List<File> samplesClassTypes;
 
@@ -50,6 +51,7 @@ class MetaJavaTest {
     sampleRecord1 = sampleRootPath.resolve("sample1").resolve("Record1.java").toFile();
     sampleEnum1 = sampleRootPath.resolve("sample1").resolve("Enum1.java").toFile();
     sampleAnnotation1 = sampleRootPath.resolve("sample1").resolve("Annotation1.java").toFile();
+    sampleMethod = sampleRootPath.resolve("sample1").resolve("MethodSample.java").toFile();
     sampleClasses = List.of(sampleClass1, sampleClass2);
     samplesClassTypes = List.of(sampleClass1, sampleInterface1, sampleRecord1, sampleEnum1, sampleAnnotation1);
   }
@@ -445,6 +447,66 @@ class MetaJavaTest {
 
       ClassMeta class1 = getClassMeta(actual, "Class1");
       assertThat(class1.methods()).map(MethodMeta::name).containsExactlyInAnyOrder("m11", "m12", "noAnnotationMethod");
+    }
+
+    @Test
+    void readPublicModifiers() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "publicMethod");
+      assertThat(methodMeta.name()).isEqualTo("publicMethod");
+      assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PUBLIC);
+    }
+
+    @Test
+    void readFriendlyModifiers() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "friendlyMethod");
+      assertThat(methodMeta.name()).isEqualTo("friendlyMethod");
+      assertThat(methodMeta.modifiers()).isEmpty();
+    }
+
+    @Test
+    void readProtectedModifiers() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "protectedMethod");
+      assertThat(methodMeta.name()).isEqualTo("protectedMethod");
+      assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PROTECTED);
+    }
+
+    @Test
+    void readPrivateModifiers() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "privateMethod");
+      assertThat(methodMeta.name()).isEqualTo("privateMethod");
+      assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(PRIVATE);
+    }
+
+    @Test
+    void readStaticModifiers() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "staticMethod");
+      assertThat(methodMeta.name()).isEqualTo("staticMethod");
+      assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(STATIC, PUBLIC);
+    }
+
+    @Test
+    void readMethodAnnotation() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "annotatedMethod");
+      assertThat(methodMeta.name()).isEqualTo("annotatedMethod");
+      assertThat(methodMeta.annotations()).map(AnnotationMeta::name).containsExactlyInAnyOrder("Annotated");
     }
 
     @Test

@@ -7,29 +7,29 @@ import com.sun.source.tree.VariableTree;
 import java.util.Collection;
 import java.util.Set;
 import org.jid.metajava.model.AnnotationMeta;
-import org.jid.metajava.model.FieldMeta;
+import org.jid.metajava.model.VariableMeta;
 import org.jid.metajava.model.Modifier;
 
-class FieldProcessor {
+class VariableProcessor {
 
   private final AnnotationProcessor annotationProcessor;
   private final ModifierProcessor modifierProcessor;
 
-  FieldProcessor(AnnotationProcessor annotationProcessor, ModifierProcessor modifierProcessor) {
+  VariableProcessor(AnnotationProcessor annotationProcessor, ModifierProcessor modifierProcessor) {
     this.annotationProcessor = annotationProcessor;
     this.modifierProcessor = modifierProcessor;
   }
 
-  public void getMetas(Tree fieldInfoTree, Collection<FieldMeta> fields) {
+  public void getMetas(Tree fieldInfoTree, Collection<VariableMeta> variables) {
 
-    runVariableVisitor(fieldInfoTree, fields, ((variableTree, fieldAcc) -> {
+    runVariableVisitor(fieldInfoTree, variables, ((variableTree, variableAcc) -> {
       String name = variableTree.getName().toString();
       String type = variableTree.getType().toString();
       String initialValue = getInitialValue(variableTree);
       Set<Modifier> modifiers = modifierProcessor.getModifierFlags(variableTree.getModifiers());
       Set<AnnotationMeta> annotations = annotationProcessor.getMetas(variableTree.getModifiers());
 
-      fieldAcc.add(new FieldMeta(name, type, initialValue, modifiers, annotations));
+      variableAcc.add(new VariableMeta(name, type, initialValue, modifiers, annotations));
       return null;
     }));
 

@@ -6,7 +6,7 @@ import static org.jid.metajava.VisitorFactory.runMethodVisitor;
 import com.sun.source.tree.Tree;
 import java.util.ArrayList;
 import java.util.Set;
-import org.jid.metajava.model.FieldMeta;
+import org.jid.metajava.model.VariableMeta;
 import org.jid.metajava.model.MethodMeta;
 import org.jid.metajava.model.Modifier;
 
@@ -14,12 +14,12 @@ class MethodProcessor {
 
   private final AnnotationProcessor annotationProcessor;
   private final ModifierProcessor modifierProcessor;
-  private final FieldProcessor fieldProcessor;
+  private final VariableProcessor variableProcessor;
 
-  MethodProcessor(AnnotationProcessor annotationProcessor, ModifierProcessor modifierProcessor, FieldProcessor fieldProcessor) {
+  MethodProcessor(AnnotationProcessor annotationProcessor, ModifierProcessor modifierProcessor, VariableProcessor variableProcessor) {
     this.annotationProcessor = annotationProcessor;
     this.modifierProcessor = modifierProcessor;
-    this.fieldProcessor = fieldProcessor;
+    this.variableProcessor = variableProcessor;
   }
 
   public void getMetas(Tree methodInfoTree, Set<MethodMeta> methods) {
@@ -31,8 +31,8 @@ class MethodProcessor {
 
       String methodName = methodTree.getName().toString();
       String returnType = methodTree.getReturnType().toString();
-      var parameters = new ArrayList<FieldMeta>();
-      methodTree.getParameters().forEach(param -> fieldProcessor.getMetas(param, parameters));
+      var parameters = new ArrayList<VariableMeta>();
+      methodTree.getParameters().forEach(param -> variableProcessor.getMetas(param, parameters));
       Set<Modifier> modifierFlags = modifierProcessor.getModifierFlags(methodTree.getModifiers());
       var annotations = annotationProcessor.getMetas(methodTree.getModifiers());
 

@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.ClassType;
-import org.jid.metajava.model.FieldMeta;
+import org.jid.metajava.model.VariableMeta;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
 
@@ -24,12 +24,12 @@ class ClassProcessor {
 
   private final MethodProcessor methodProcessor;
   private final AnnotationProcessor annotationProcessor;
-  private final FieldProcessor fieldProcessor;
+  private final VariableProcessor variableProcessor;
 
-  ClassProcessor(MethodProcessor methodProcessor, AnnotationProcessor annotationProcessor, FieldProcessor fieldProcessor) {
+  ClassProcessor(MethodProcessor methodProcessor, AnnotationProcessor annotationProcessor, VariableProcessor variableProcessor) {
     this.methodProcessor = methodProcessor;
     this.annotationProcessor = annotationProcessor;
-    this.fieldProcessor = fieldProcessor;
+    this.variableProcessor = variableProcessor;
   }
 
   public void getMetas(Tree tree, Set<ClassMeta> classes, CompilationUnitMeta compilationUnitMeta) {
@@ -39,12 +39,12 @@ class ClassProcessor {
 
     runClassVisitor(tree, classes, (classTree, classesAcc) -> {
       var methodsOfAClass = new HashSet<MethodMeta>();
-      Set<FieldMeta> fieldsOfAClass = new HashSet<>();
+      Set<VariableMeta> fieldsOfAClass = new HashSet<>();
       classTree.getMembers().forEach(classMember -> {
         if (classMember.getKind() == Kind.METHOD) {
           methodProcessor.getMetas(classMember, methodsOfAClass);
         } else if (classMember.getKind() == Kind.VARIABLE) {
-          fieldProcessor.getMetas(classMember, fieldsOfAClass);
+          variableProcessor.getMetas(classMember, fieldsOfAClass);
         }
       });
       String className = classTree.getSimpleName().toString();

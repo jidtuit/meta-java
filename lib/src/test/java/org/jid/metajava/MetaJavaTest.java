@@ -20,7 +20,7 @@ import org.jid.metajava.model.AnnotationArgument;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.AnnotationSupport;
 import org.jid.metajava.model.ClassMeta;
-import org.jid.metajava.model.FieldMeta;
+import org.jid.metajava.model.VariableMeta;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
 import org.junit.jupiter.api.BeforeEach;
@@ -193,10 +193,10 @@ class MetaJavaTest {
         assertThat(class2.methods()).map(MethodMeta::name).containsExactly("m2");
 
         ClassMeta record1 = getClassMeta(actual, "MultipleClassFileRecord");
-        assertThat(record1.fields()).map(FieldMeta::name).containsExactly("field1");
+        assertThat(record1.fields()).map(VariableMeta::name).containsExactly("field1");
 
         ClassMeta enum1 = getClassMeta(actual, "MultipleClassFileEnum");
-        assertThat(enum1.fields()).map(FieldMeta::name).containsExactlyInAnyOrder("VAR1", "VAR2");
+        assertThat(enum1.fields()).map(VariableMeta::name).containsExactlyInAnyOrder("VAR1", "VAR2");
 
         ClassMeta interface1 = getClassMeta(actual, "MultipleClassFileInterface");
         assertThat(interface1.methods()).map(MethodMeta::name).containsExactly("mInterface1");
@@ -563,16 +563,16 @@ class MetaJavaTest {
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "m4");
       // Order is important since it is a sequenced collection
-      assertThat(methodMeta.params()).map(FieldMeta::name).containsExactly("p1", "p2");
+      assertThat(methodMeta.params()).map(VariableMeta::name).containsExactly("p1", "p2");
 
-      FieldMeta p1 = getParamMeta(methodMeta, "p1");
+      VariableMeta p1 = getParamMeta(methodMeta, "p1");
       assertThat(p1.name()).isEqualTo("p1");
       assertThat(p1.type()).isEqualTo("Integer");
       assertThat(p1.annotations()).isEmpty();
       assertThat(p1.modifiers()).isEmpty();
       assertThat(p1.initializer()).isNull();
 
-      FieldMeta p2 = getParamMeta(methodMeta, "p2");
+      VariableMeta p2 = getParamMeta(methodMeta, "p2");
       assertThat(p2.name()).isEqualTo("p2");
       assertThat(p2.type()).isEqualTo("int");
       assertThat(p2.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
@@ -647,14 +647,14 @@ class MetaJavaTest {
   }
 
   @Nested
-  class FieldMetaTests {
+  class VariableMetaTests {
 
     @Test
     void readFieldNames() {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      assertThat(classMeta.fields()).map(FieldMeta::name)
+      assertThat(classMeta.fields()).map(VariableMeta::name)
         .containsExactlyInAnyOrder("CONSTANT_1_1", "answer", "notInitVar", "expressionVar");
     }
 
@@ -663,7 +663,7 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      assertThat(classMeta.fields()).map(FieldMeta::type)
+      assertThat(classMeta.fields()).map(VariableMeta::type)
         .containsExactlyInAnyOrder("String", "int", "Double", "float");
     }
 
@@ -672,7 +672,7 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      assertThat(classMeta.fields()).map(FieldMeta::initializer)
+      assertThat(classMeta.fields()).map(VariableMeta::initializer)
         .containsExactlyInAnyOrder("constant1-1", "42", null, "1.0F + 1.0F");
     }
 
@@ -681,7 +681,7 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      FieldMeta field = getFieldMeta(classMeta, "answer");
+      VariableMeta field = getFieldMeta(classMeta, "answer");
       assertThat(field.annotations()).map(AnnotationMeta::name).containsExactly("MeaningOfLifeUniverseAndEverythingElse");
     }
 
@@ -690,7 +690,7 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
-      FieldMeta field = getFieldMeta(classMeta, "expressionVar");
+      VariableMeta field = getFieldMeta(classMeta, "expressionVar");
       assertThat(field.annotations()).isEmpty();
     }
 
@@ -708,21 +708,21 @@ class MetaJavaTest {
 
       ClassMeta clazz = getClassMeta(actual, "Enum1");
 
-      FieldMeta value1 = getFieldMeta(clazz, "VAR1");
+      VariableMeta value1 = getFieldMeta(clazz, "VAR1");
       assertThat(value1.name()).isEqualTo("VAR1");
       assertThat(value1.type()).isEqualTo("Enum1");
       assertThat(value1.initializer()).isEqualTo("new Enum1(\"hello\")");
       assertThat(value1.modifiers()).containsExactlyInAnyOrder(PUBLIC, STATIC, FINAL);
       assertThat(value1.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
 
-      FieldMeta value2 = getFieldMeta(clazz, "VAR2");
+      VariableMeta value2 = getFieldMeta(clazz, "VAR2");
       assertThat(value2.name()).isEqualTo("VAR2");
       assertThat(value2.type()).isEqualTo("Enum1");
       assertThat(value2.initializer()).isEqualTo("new Enum1()");
       assertThat(value2.modifiers()).containsExactlyInAnyOrder(PUBLIC, STATIC, FINAL);
       assertThat(value2.annotations()).isEmpty();
 
-      FieldMeta enumField = getFieldMeta(clazz, "initVar");
+      VariableMeta enumField = getFieldMeta(clazz, "initVar");
       assertThat(enumField.name()).isEqualTo("initVar");
       assertThat(enumField.type()).isEqualTo("String");
       assertThat(enumField.initializer()).isNull();
@@ -736,21 +736,21 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
 
-      FieldMeta param1 = getFieldMeta(classMeta, "param1");
+      VariableMeta param1 = getFieldMeta(classMeta, "param1");
       assertThat(param1.name()).isEqualTo("param1");
       assertThat(param1.type()).isEqualTo("String");
       assertThat(param1.initializer()).isNull();
       assertThat(param1.modifiers()).containsExactlyInAnyOrder(FINAL, PRIVATE);
       assertThat(param1.annotations()).isEmpty();
 
-      FieldMeta param2 = getFieldMeta(classMeta, "param2");
+      VariableMeta param2 = getFieldMeta(classMeta, "param2");
       assertThat(param2.name()).isEqualTo("param2");
       assertThat(param2.type()).isEqualTo("int");
       assertThat(param2.initializer()).isNull();
       assertThat(param2.modifiers()).containsExactlyInAnyOrder(FINAL, PRIVATE);
       assertThat(param2.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
 
-      FieldMeta myConst = getFieldMeta(classMeta, "MY_CONST");
+      VariableMeta myConst = getFieldMeta(classMeta, "MY_CONST");
       assertThat(myConst.name()).isEqualTo("MY_CONST");
       assertThat(myConst.type()).isEqualTo("Integer");
       assertThat(myConst.initializer()).isEqualTo("42");
@@ -764,7 +764,7 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
 
-      FieldMeta myConst = getFieldMeta(classMeta, "MY_CONST_I");
+      VariableMeta myConst = getFieldMeta(classMeta, "MY_CONST_I");
       assertThat(myConst.name()).isEqualTo("MY_CONST_I");
       assertThat(myConst.type()).isEqualTo("Float");
       assertThat(myConst.initializer()).isEqualTo("42.0F");
@@ -783,13 +783,13 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
 
-      FieldMeta field1 = getFieldMeta(classMeta, "CONSTANT_1_1");
+      VariableMeta field1 = getFieldMeta(classMeta, "CONSTANT_1_1");
       assertThat(field1.modifiers()).containsExactlyInAnyOrder(PUBLIC, STATIC, FINAL);
 
-      FieldMeta field2 = getFieldMeta(classMeta, "answer");
+      VariableMeta field2 = getFieldMeta(classMeta, "answer");
       assertThat(field2.modifiers()).containsExactlyInAnyOrder(PRIVATE);
 
-      FieldMeta field3 = getFieldMeta(classMeta, "expressionVar");
+      VariableMeta field3 = getFieldMeta(classMeta, "expressionVar");
       assertThat(field3.modifiers()).containsExactlyInAnyOrder(PROTECTED, VOLATILE);
     }
 
@@ -799,7 +799,7 @@ class MetaJavaTest {
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
 
-      FieldMeta field3 = getFieldMeta(classMeta, "notInitVar");
+      VariableMeta field3 = getFieldMeta(classMeta, "notInitVar");
       assertThat(field3.modifiers()).isEmpty();
     }
 
@@ -832,11 +832,11 @@ class MetaJavaTest {
     return element1.annotations().stream().filter(a -> annotationName.equals(a.name())).findFirst().orElseThrow();
   }
 
-  private FieldMeta getFieldMeta(ClassMeta class1, String fieldName) {
+  private VariableMeta getFieldMeta(ClassMeta class1, String fieldName) {
     return class1.fields().stream().filter(f -> fieldName.equals(f.name())).findFirst().orElseThrow();
   }
 
-  private FieldMeta getParamMeta(MethodMeta method1, String fieldName) {
+  private VariableMeta getParamMeta(MethodMeta method1, String fieldName) {
     return method1.params().stream().filter(f -> fieldName.equals(f.name())).findFirst().orElseThrow();
   }
 

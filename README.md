@@ -32,7 +32,7 @@
 * Imports
     * Split between package and class/wildcard
 * Methods
-    * Params, param types and param annotations
+    * ~~Params, param types and param annotations~~
     * ~~Return type~~
     * Throws exceptions
     * Class/Record/Enum constructors -> Contructors are methods with returnType == null

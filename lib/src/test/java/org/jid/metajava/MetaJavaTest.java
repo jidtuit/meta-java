@@ -580,6 +580,39 @@ class MetaJavaTest {
       assertThat(p2.initializer()).isNull();
     }
 
+    @Test
+    void readMethodWithVarArgParams() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "varArgsMethod");
+      assertThat(methodMeta.params()).map(VariableMeta::name).containsExactly("p1", "p2");
+
+      VariableMeta p1 = getParamMeta(methodMeta, "p1");
+      assertThat(p1.type()).isEqualTo("int");
+
+      VariableMeta p2 = getParamMeta(methodMeta, "p2");
+      assertThat(p2.type()).isEqualTo("String[]");
+    }
+
+    @Test
+    void readMethodThatThrowsException() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "throwsExceptionMethod");
+      assertThat(methodMeta.exceptions()).containsExactlyInAnyOrder("MyException1", "MyException2");
+    }
+
+    @Test
+    void readMethodThatDoesNotThrowExceptions() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m1");
+      assertThat(methodMeta.exceptions()).isEmpty();
+    }
+
   }
 
   @Nested

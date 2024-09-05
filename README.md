@@ -32,10 +32,10 @@
 * Imports
     * Split between package and class/wildcard
 * Methods
-    * ~~Params, param types and param annotations~~
+    * ~~Params, param types and param annotations. Also includes varArgs~~
     * ~~Return type~~
-    * Throws exceptions
-    * Class/Record/Enum constructors -> Contructors are methods with returnType == null
+    * ~~Throws exceptions~~
+    * Class/Record/Enum constructors -> Constructors are methods with returnType == null
     * ~~Modifiers:~~
         * ~~Accessor (public, private, etc)~~
         * ~~isStatic?~~
@@ -62,4 +62,4 @@ Limitations:
 * Float values in initializers are transformed by the java compiler. For example:
     * Source code: Double myVar = 42;
     * Is returned by the library as a field with the initializer that equals to 42.0F.
-* 
+* It doesn't read the body of constructors, methods, default implementations or static blocks for initializing

@@ -6,7 +6,9 @@ import static org.jid.metajava.VisitorFactory.runMethodVisitor;
 import com.sun.source.tree.Tree;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.jid.metajava.model.VariableMeta;
 import org.jid.metajava.model.MethodMeta;
 import org.jid.metajava.model.Modifier;
@@ -34,10 +36,12 @@ class MethodProcessor {
       String returnType = methodTree.getReturnType().toString();
       var parameters = new ArrayList<VariableMeta>();
       methodTree.getParameters().forEach(param -> variableProcessor.getMetas(param, parameters));
+      Set<String> exceptions = methodTree.getThrows().stream().map(Object::toString).collect(Collectors.toUnmodifiableSet());
       Set<Modifier> modifierFlags = modifierProcessor.getModifierFlags(methodTree.getModifiers());
       var annotations = annotationProcessor.getMetas(methodTree.getModifiers());
 
-      methodAcc.add(new MethodMeta(methodName, returnType, unmodifiableSequencedCollection(parameters), modifierFlags, annotations));
+      methodAcc.add(
+        new MethodMeta(methodName, returnType, unmodifiableSequencedCollection(parameters), exceptions, modifierFlags, annotations));
       return null;
     });
   }

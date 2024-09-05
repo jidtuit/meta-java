@@ -29,11 +29,11 @@ public class MethodSample {
   public static void staticMethod() {
   }
 
-  public void varArgsMethod(String... args) {
+  public void varArgsMethod(int p1, String... p2) {
 
   }
 
-  public void throwsExceptionMethod() throws MyException1 {
+  public void throwsExceptionMethod() throws MyException1, MyException2 {
 
   }
 

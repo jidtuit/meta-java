@@ -33,9 +33,9 @@
     * Split between package and class/wildcard
 * Methods
     * Params, param types and param annotations
-    * Return type
+    * ~~Return type~~
     * Throws exceptions
-    * Class constructors
+    * Class/Record/Enum constructors -> Contructors are methods with returnType == null
     * ~~Modifiers:~~
         * ~~Accessor (public, private, etc)~~
         * ~~isStatic?~~

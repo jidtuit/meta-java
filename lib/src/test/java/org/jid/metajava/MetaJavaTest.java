@@ -547,6 +547,39 @@ class MetaJavaTest {
       assertThat(classMeta.methods()).map(MethodMeta::name).doesNotContainSubsequence("<init>");
     }
 
+    @Test
+    void readMethodWithNoParams() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m3");
+      assertThat(methodMeta.params()).isEmpty();
+    }
+
+    @Test
+    void readMethodWithParams() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "m4");
+      // Order is important since it is a sequenced collection
+      assertThat(methodMeta.params()).map(FieldMeta::name).containsExactly("p1", "p2");
+
+      FieldMeta p1 = getParamMeta(methodMeta, "p1");
+      assertThat(p1.name()).isEqualTo("p1");
+      assertThat(p1.type()).isEqualTo("Integer");
+      assertThat(p1.annotations()).isEmpty();
+      assertThat(p1.modifiers()).isEmpty();
+      assertThat(p1.initializer()).isNull();
+
+      FieldMeta p2 = getParamMeta(methodMeta, "p2");
+      assertThat(p2.name()).isEqualTo("p2");
+      assertThat(p2.type()).isEqualTo("int");
+      assertThat(p2.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
+      assertThat(p2.modifiers()).isEmpty();
+      assertThat(p2.initializer()).isNull();
+    }
+
   }
 
   @Nested
@@ -801,6 +834,10 @@ class MetaJavaTest {
 
   private FieldMeta getFieldMeta(ClassMeta class1, String fieldName) {
     return class1.fields().stream().filter(f -> fieldName.equals(f.name())).findFirst().orElseThrow();
+  }
+
+  private FieldMeta getParamMeta(MethodMeta method1, String fieldName) {
+    return method1.params().stream().filter(f -> fieldName.equals(f.name())).findFirst().orElseThrow();
   }
 
   private AnnotationArgument getAnnotationArgsMeta(AnnotationMeta annotationMeta, String argName) {

@@ -4,6 +4,7 @@ import static org.jid.metajava.VisitorFactory.runVariableVisitor;
 
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.VariableTree;
+import java.util.Collection;
 import java.util.Set;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.FieldMeta;
@@ -19,7 +20,7 @@ class FieldProcessor {
     this.modifierProcessor = modifierProcessor;
   }
 
-  public void getMetas(Tree fieldInfoTree, Set<FieldMeta> fields) {
+  public void getMetas(Tree fieldInfoTree, Collection<FieldMeta> fields) {
 
     runVariableVisitor(fieldInfoTree, fields, ((variableTree, fieldAcc) -> {
       String name = variableTree.getName().toString();

@@ -22,7 +22,7 @@ public class MethodSample {
     return new StringBuilder("HelloWorld");
   }
 
-  protected Double m4(Integer p1, int p2) {
+  protected Double m4(Integer p1, @Deprecated int p2) {
     return p1 + p2;
   }
 

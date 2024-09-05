@@ -5,6 +5,7 @@ import static org.jid.metajava.VisitorFactory.runMethodVisitor;
 
 import com.sun.source.tree.Tree;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 import org.jid.metajava.model.VariableMeta;
 import org.jid.metajava.model.MethodMeta;
@@ -22,7 +23,7 @@ class MethodProcessor {
     this.variableProcessor = variableProcessor;
   }
 
-  public void getMetas(Tree methodInfoTree, Set<MethodMeta> methods) {
+  public void getMetas(Tree methodInfoTree, Collection<MethodMeta> methods) {
     runMethodVisitor(methodInfoTree, methods, (methodTree, methodAcc) -> {
       //  methodTree.getReturnType() is null in constructors which are currently NOT supported
       if (methodTree.getReturnType() == null) {

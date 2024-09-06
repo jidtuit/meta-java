@@ -8,7 +8,8 @@ public class MethodSample {
   public MethodSample() {
   }
 
-  public MethodSample(String s) {
+  @Deprecated
+  MethodSample(String s1) throws MyException1 {
   }
 
   public void m1() {

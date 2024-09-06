@@ -40,7 +40,7 @@ class MetaJavaTest {
   private File sampleAnnotation1;
   private File sampleMethod;
   private List<File> sampleClasses;
-  private List<File> samplesClassTypes;
+  private List<File> sampleClassTypes;
 
   @BeforeEach
   void setup() {
@@ -53,7 +53,7 @@ class MetaJavaTest {
     sampleAnnotation1 = sampleRootPath.resolve("sample1").resolve("Annotation1.java").toFile();
     sampleMethod = sampleRootPath.resolve("sample1").resolve("MethodSample.java").toFile();
     sampleClasses = List.of(sampleClass1, sampleClass2);
-    samplesClassTypes = List.of(sampleClass1, sampleInterface1, sampleRecord1, sampleEnum1, sampleAnnotation1);
+    sampleClassTypes = List.of(sampleClass1, sampleInterface1, sampleRecord1, sampleEnum1, sampleAnnotation1);
   }
 
   @Nested
@@ -205,6 +205,33 @@ class MetaJavaTest {
         assertThat(annotation1.methods()).map(MethodMeta::name).containsExactly("value");
       }
 
+      @Test
+      void readConstructors() {
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClassTypes);
+
+        ClassMeta class1 = getClassMeta(actual, "Class1");
+        assertThat(class1.constructors()).isEmpty();
+        assertThat(class1.methods()).isNotEmpty();
+
+        ClassMeta enum1 = getClassMeta(actual, "Enum1");
+        assertThat(enum1.constructors()).hasSize(2);
+        assertThat(enum1.methods()).isNotEmpty();
+
+        ClassMeta record1 = getClassMeta(actual, "Record1");
+        assertThat(record1.constructors()).hasSize(1);
+        assertThat(record1.methods()).isNotEmpty();
+
+        ClassMeta interface1 = getClassMeta(actual, "Interface1");
+        assertThat(interface1.constructors()).isEmpty();
+        assertThat(interface1.methods()).isNotEmpty();
+
+        ClassMeta annotation1 = getClassMeta(actual, "Annotation1");
+        assertThat(annotation1.constructors()).isEmpty();
+        assertThat(annotation1.methods()).isNotEmpty();
+
+      }
+
     }
 
 
@@ -284,7 +311,7 @@ class MetaJavaTest {
 
       @Test
       void readInterfaceType() {
-        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+        Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClassTypes);
 
         ClassMeta clazz = getClassMeta(actual, "Interface1");
         assertThat(clazz.type()).isEqualTo(INTERFACE);
@@ -334,7 +361,7 @@ class MetaJavaTest {
 
       @Test
       void readRecordType() {
-        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+        Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClassTypes);
 
         ClassMeta clazz = getClassMeta(actual, "Record1");
         assertThat(clazz.type()).isEqualTo(RECORD);
@@ -386,7 +413,7 @@ class MetaJavaTest {
 
       @Test
       void readEnumType() {
-        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+        Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClassTypes);
 
         ClassMeta clazz = getClassMeta(actual, "Enum1");
         assertThat(clazz.type()).isEqualTo(ENUM);
@@ -408,7 +435,7 @@ class MetaJavaTest {
 
       @Test
       void readAnnotationType() {
-        Set<ClassMeta> actual = metaJava.getMetaFrom(samplesClassTypes);
+        Set<ClassMeta> actual = metaJava.getMetaFrom(sampleClassTypes);
 
         ClassMeta clazz = getClassMeta(actual, "Annotation1");
         assertThat(clazz.type()).isEqualTo(ANNOTATION);
@@ -611,6 +638,31 @@ class MetaJavaTest {
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "m1");
       assertThat(methodMeta.exceptions()).isEmpty();
+    }
+
+    @Test
+    void readConstructors() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      List<MethodMeta> constructors = classMeta.constructors().stream().filter(MethodMeta::isConstructor).toList();
+      assertThat(constructors).hasSize(2);
+
+      MethodMeta constructor1 = constructors.stream().filter(c -> c.params().isEmpty()).findFirst().orElseThrow();
+      assertThat(constructor1.name()).isEqualTo("<init>");
+      assertThat(constructor1.returnType()).isNull();
+      assertThat(constructor1.params()).isEmpty();
+      assertThat(constructor1.modifiers()).containsExactly(PUBLIC);
+      assertThat(constructor1.exceptions()).isEmpty();
+      assertThat(constructor1.annotations()).isEmpty();
+
+      MethodMeta constructor2 = constructors.stream().filter(c -> !c.params().isEmpty()).findFirst().orElseThrow();
+      assertThat(constructor2.name()).isEqualTo("<init>");
+      assertThat(constructor2.returnType()).isNull();
+      assertThat(constructor2.params()).map(VariableMeta::name).containsExactly("s1");
+      assertThat(constructor2.modifiers()).isEmpty();
+      assertThat(constructor2.exceptions()).containsExactlyInAnyOrder("MyException1");
+      assertThat(constructor2.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
     }
 
   }

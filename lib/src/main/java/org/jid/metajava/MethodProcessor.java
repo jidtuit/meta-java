@@ -28,12 +28,13 @@ class MethodProcessor {
   public void getMetas(Tree methodInfoTree, Collection<MethodMeta> methods) {
     runMethodVisitor(methodInfoTree, methods, (methodTree, methodAcc) -> {
       //  methodTree.getReturnType() is null in constructors which are currently NOT supported
-      if (methodTree.getReturnType() == null) {
-        return null;
-      }
+//      if (methodTree.getReturnType() == null) {
+//        return null;
+//      }
 
       String methodName = methodTree.getName().toString();
-      String returnType = methodTree.getReturnType().toString();
+      //  methodTree.getReturnType() is null in constructors
+      String returnType = methodTree.getReturnType() == null ? null : methodTree.getReturnType().toString();
       var parameters = new ArrayList<VariableMeta>();
       methodTree.getParameters().forEach(param -> variableProcessor.getMetas(param, parameters));
       Set<String> exceptions = methodTree.getThrows().stream().map(Object::toString).collect(Collectors.toUnmodifiableSet());

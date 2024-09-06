@@ -2,6 +2,9 @@ package org.jid.metajava;
 
 
 import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static org.jid.metajava.VisitorFactory.runClassVisitor;
 
@@ -9,6 +12,8 @@ import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.jid.metajava.model.AnnotationMeta;
@@ -47,6 +52,8 @@ class ClassProcessor {
           variableProcessor.getMetas(classMember, fieldsOfAClass);
         }
       });
+      Map<Boolean, Set<MethodMeta>> methodsByType = methodsOfAClass.stream()
+        .collect(groupingBy(MethodMeta::isConstructor, mapping(i -> i, toSet())));
       String className = classTree.getSimpleName().toString();
       Set<AnnotationMeta> annotations = annotationProcessor.getMetas(classTree.getModifiers());
       var classType = ClassType.from(classTree.getKind().name());
@@ -54,8 +61,9 @@ class ClassProcessor {
       Set<String> implementsFrom = getImplementsFrom(classTree);
 
       classesAcc.add(
-        new ClassMeta(className, classType, unmodifiableSet(methodsOfAClass), annotations, packageName, sourceFile, imports, extendsFrom,
-          implementsFrom, unmodifiableSet(fieldsOfAClass))
+        new ClassMeta(className, classType, unmodifiableSet(methodsByType.getOrDefault(false, Set.of())), annotations, packageName,
+          sourceFile, imports, extendsFrom, implementsFrom, unmodifiableSet(fieldsOfAClass),
+          unmodifiableSet(methodsByType.getOrDefault(true, Set.of())))
       );
       return null;
     });

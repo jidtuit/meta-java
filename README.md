@@ -35,7 +35,7 @@
     * ~~Params, param types and param annotations. Also includes varArgs~~
     * ~~Return type~~
     * ~~Throws exceptions~~
-    * Class/Record/Enum constructors -> Constructors are methods with returnType == null
+    * ~~Class/Record/Enum constructors -> Constructors are methods with returnType == null~~
     * ~~Modifiers:~~
         * ~~Accessor (public, private, etc)~~
         * ~~isStatic?~~
@@ -63,3 +63,4 @@ Limitations:
     * Source code: Double myVar = 42;
     * Is returned by the library as a field with the initializer that equals to 42.0F.
 * It doesn't read the body of constructors, methods, default implementations or static blocks for initializing
+* Constructors are regular methods with return type == null. There is a isConstructor() method to filter.

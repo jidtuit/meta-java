@@ -31,7 +31,7 @@
 * ~~Does record and enum fields are treated as regular fields?? --> YES~~
 * Imports
     * Split between package and class/wildcard
-* Methods
+* ~~Methods~~
     * ~~Params, param types and param annotations. Also includes varArgs~~
     * ~~Return type~~
     * ~~Throws exceptions~~

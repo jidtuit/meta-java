@@ -4,13 +4,9 @@
 
 * ~~Refactor code to reduce cyclomatic complexity~~
 * ~~Remove throwing a checked exception~~
-* Create Interfaces to:
-    * Traverse through the tree in a generic way.
-    * ~~Identify elements that can have annotations~~
-* Annotations:
+* ~~Create Interfaces to Identify elements that can have annotations~~
+* ~~Annotations~~:
     * ~~Split annotation argument in name and value~~
-    * Annotation arguments with real types instead of Strings --> Where do we take that info? From the imports? Is there a way to do a
-      Class.forName()
     * ~~When annotation has argValue but no argName~~
         * ~~Remove extra quotation marks~~
 * ~~Class annotations~~
@@ -29,29 +25,30 @@
     * ~~isStatic?~~
     * ~~Field annotations~~
 * ~~Does record and enum fields are treated as regular fields?? --> YES~~
-* Imports
-    * Split between package and class/wildcard
 * ~~Methods~~
-    * ~~Params, param types and param annotations. Also includes varArgs~~
-    * ~~Return type~~
-    * ~~Throws exceptions~~
-    * ~~Class/Record/Enum constructors -> Constructors are methods with returnType == null~~
-    * ~~Modifiers:~~
-        * ~~Accessor (public, private, etc)~~
-        * ~~isStatic?~~
-* Interface methods with default implementation -> Depends on full implementation of methods meta.
-* Add search methods to look for an specific field or method or annotation or argument annotation.
+  * ~~Params, param types and param annotations. Also includes varArgs~~
+  * ~~Return type~~
+  * ~~Throws exceptions~~
+  * ~~Class/Record/Enum constructors -> Constructors are methods with returnType == null~~
+  * ~~Modifiers:~~
+    * ~~Accessor (public, private, etc)~~
+    * ~~isStatic?~~
 * ~~Enum: Parse fields of the enum~~
-* Support sealed interfaces -> Sealed should be one of the modifiers of an interface
-* Check if everything works ok with several classes defined in the same java file
-* Generics support in:
-    * Methods
-    * Classes
-    * Interfaces
-    * Records
 * ~~Multiple class definition in one file~~
 * Inner classes / records
+* Interface methods with default implementation marker -> Depends on full implementation of methods meta.
+* Support sealed interfaces -> Sealed should be one of the modifiers of an interface
+* Traverse through the meta information tree in a generic way.
+* Add search methods to look for an specific field or method or annotation or argument annotation.
 * Split MetaJavaTest into different classes
+* Generics support in:
+  * Methods
+  * Classes
+  * Interfaces
+  * Records
+* Imports: Split between package and class/wildcard -> Breaks backwad compatibility
+* Annotation arguments with real types instead of Strings --> Where do we take that info? From the imports? Is there a way to do a
+  Class.forName()
 
 Limitations:
 

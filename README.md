@@ -36,7 +36,7 @@
 * ~~Enum: Parse fields of the enum~~
 * ~~Multiple class definition in one file~~
 * ~~Interface methods with default implementation marker~~
-* Inner classes
+* Nested classes
 * Support sealed interfaces -> Sealed should be one of the modifiers of an interface
 * Traverse through the meta information tree in a generic way.
 * Add search methods to look for an specific field or method or annotation or argument annotation.
@@ -47,7 +47,7 @@
     * Classes
     * Interfaces
     * Records
-* Imports: Split between package and class/wildcard -> Breaks backwad compatibility
+* Imports: Split between package and class/wildcard -> Breaks backward compatibility
 * Annotation arguments with real types instead of Strings --> Where do we take that info? From the imports? Is there a way to do a
   Class.forName()
 
@@ -64,4 +64,5 @@ Limitations:
     * If there is a method of an interface with default implementation then it will also have the DEFAULT modifier.
 * Constructors are regular methods with return type == null. There is a isConstructor() convenience method.
     * All the constructor of a class has the same name (`"<init>"`) but different parameters.
+* Local and anonymous classes not supported. Static and inner (non-static) classes are supported.
 

@@ -242,22 +242,28 @@ class MetaJavaTest {
         assertThat(parentClass.nestedClasses()).isNotEmpty();
         ClassMeta nestedClass = getClassMeta(parentClass.nestedClasses(), "StaticNestedClass");
         assertThat(nestedClass.type()).isEqualTo(CLASS);
+        assertThat(nestedClass.modifiers()).contains(STATIC);
 
         ClassMeta innerClass = getClassMeta(parentClass.nestedClasses(), "InnerClass");
         assertThat(innerClass.type()).isEqualTo(CLASS);
+        assertThat(innerClass.modifiers()).doesNotContain(STATIC);
 
         ClassMeta innerEnum = getClassMeta(parentClass.nestedClasses(), "InnerEnum");
         assertThat(innerEnum.type()).isEqualTo(ENUM);
+        assertThat(innerClass.modifiers()).doesNotContain(STATIC);
 
         ClassMeta innerRecord = getClassMeta(parentClass.nestedClasses(), "InnerRecord");
         assertThat(innerRecord.type()).isEqualTo(RECORD);
         assertThat(innerRecord.fields()).map(VariableMeta::name).containsExactly("p1");
+        assertThat(innerClass.modifiers()).doesNotContain(STATIC);
 
         ClassMeta innerInterface = getClassMeta(parentClass.nestedClasses(), "InnerInterface");
         assertThat(innerInterface.type()).isEqualTo(INTERFACE);
+        assertThat(innerClass.modifiers()).doesNotContain(STATIC);
 
         ClassMeta innerAnnotation = getClassMeta(parentClass.nestedClasses(), "InnerAnnotation");
         assertThat(innerAnnotation.type()).isEqualTo(ANNOTATION);
+        assertThat(innerClass.modifiers()).doesNotContain(STATIC);
       }
 
       @Test
@@ -575,6 +581,15 @@ class MetaJavaTest {
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
       MethodMeta methodMeta = getMethodMeta(classMeta, "staticMethod");
       assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(STATIC, PUBLIC);
+    }
+
+    @Test
+    void readSynchronizedModifiers() {
+      Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleMethod));
+
+      ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      MethodMeta methodMeta = getMethodMeta(classMeta, "synchMethod");
+      assertThat(methodMeta.modifiers()).containsExactlyInAnyOrder(SYNCHRONIZED, PUBLIC);
     }
 
     @Test
@@ -945,15 +960,16 @@ class MetaJavaTest {
       Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(sampleClass1));
 
       ClassMeta classMeta = actual.stream().findFirst().orElseThrow();
+      assertThat(classMeta.modifiers()).containsExactlyInAnyOrder(PUBLIC, ABSTRACT);
 
       VariableMeta field1 = getFieldMeta(classMeta, "CONSTANT_1_1");
       assertThat(field1.modifiers()).containsExactlyInAnyOrder(PUBLIC, STATIC, FINAL);
 
       VariableMeta field2 = getFieldMeta(classMeta, "answer");
-      assertThat(field2.modifiers()).containsExactlyInAnyOrder(PRIVATE);
+      assertThat(field2.modifiers()).containsExactlyInAnyOrder(PRIVATE, TRANSIENT);
 
       VariableMeta field3 = getFieldMeta(classMeta, "expressionVar");
-      assertThat(field3.modifiers()).containsExactlyInAnyOrder(PROTECTED, VOLATILE);
+      assertThat(field3.modifiers()).containsExactlyInAnyOrder(PROTECTED, VOLATILE, STRICTFP);
     }
 
     @Test

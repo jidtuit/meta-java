@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.jid.metajava.model.AnnotationMeta;
 import org.jid.metajava.model.ClassMeta;
 import org.jid.metajava.model.ClassType;
+import org.jid.metajava.model.Modifier;
 import org.jid.metajava.model.VariableMeta;
 import org.jid.metajava.model.ImportMeta;
 import org.jid.metajava.model.MethodMeta;
@@ -32,11 +33,14 @@ class ClassProcessor {
   private final MethodProcessor methodProcessor;
   private final AnnotationProcessor annotationProcessor;
   private final VariableProcessor variableProcessor;
+  private final ModifierProcessor modifierProcessor;
 
-  ClassProcessor(MethodProcessor methodProcessor, AnnotationProcessor annotationProcessor, VariableProcessor variableProcessor) {
+  ClassProcessor(MethodProcessor methodProcessor, AnnotationProcessor annotationProcessor, VariableProcessor variableProcessor,
+    ModifierProcessor modifierProcessor) {
     this.methodProcessor = methodProcessor;
     this.annotationProcessor = annotationProcessor;
     this.variableProcessor = variableProcessor;
+    this.modifierProcessor = modifierProcessor;
   }
 
   public void getMetas(Tree tree, Set<ClassMeta> classes, CompilationUnitMeta compilationUnitMeta) {
@@ -60,8 +64,8 @@ class ClassProcessor {
           var nestedCompilationUnitMeta = new CompilationUnitMeta(compilationUnitMeta.sourceFile(), nestedPackageName,
             compilationUnitMeta.imports());
           // New ClassProcessor instance to avoid stackoverflow because of recursion
-          new ClassProcessor(methodProcessor, annotationProcessor, variableProcessor).getMetas(classMember, nestedClassesOfAClass,
-            nestedCompilationUnitMeta);
+          new ClassProcessor(methodProcessor, annotationProcessor, variableProcessor, modifierProcessor).getMetas(classMember,
+            nestedClassesOfAClass, nestedCompilationUnitMeta);
         }
       });
       Map<Boolean, Set<MethodMeta>> methodsByType = methodsOfAClass.stream()
@@ -70,11 +74,12 @@ class ClassProcessor {
       var classType = ClassType.from(classTree.getKind().name());
       Set<String> extendsFrom = getExtendsFrom(classTree);
       Set<String> implementsFrom = getImplementsFrom(classTree);
+      Set<Modifier> modifierFlags = modifierProcessor.getModifierFlags(classTree.getModifiers());
 
       classesAcc.add(
         new ClassMeta(className, classType, unmodifiableSet(methodsByType.getOrDefault(false, Set.of())), annotations, packageName,
           sourceFile, imports, extendsFrom, implementsFrom, unmodifiableSet(fieldsOfAClass),
-          unmodifiableSet(methodsByType.getOrDefault(true, Set.of())), unmodifiableSet(nestedClassesOfAClass))
+          unmodifiableSet(methodsByType.getOrDefault(true, Set.of())), unmodifiableSet(nestedClassesOfAClass), modifierFlags)
       );
       return null;
     });

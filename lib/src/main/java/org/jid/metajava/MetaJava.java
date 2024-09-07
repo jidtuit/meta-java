@@ -17,7 +17,7 @@ public class MetaJava {
     var modifierProcessor = new ModifierProcessor();
     var variableProcessor = new VariableProcessor(annotationProcessor, modifierProcessor);
     var methodProcessor = new MethodProcessor(annotationProcessor, modifierProcessor, variableProcessor);
-    classProcessor = new ClassProcessor(methodProcessor, annotationProcessor, variableProcessor);
+    classProcessor = new ClassProcessor(methodProcessor, annotationProcessor, variableProcessor, modifierProcessor);
   }
 
   public Set<ClassMeta> getMetaFrom(Collection<File> files) {

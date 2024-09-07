@@ -45,4 +45,7 @@ public class MethodSample {
   public void annotatedParams(@Deprecated String p1) {
   }
 
+  public synchronized void synchMethod() {
+  }
+
 }

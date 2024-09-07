@@ -229,7 +229,53 @@ class MetaJavaTest {
         ClassMeta annotation1 = getClassMeta(actual, "Annotation1");
         assertThat(annotation1.constructors()).isEmpty();
         assertThat(annotation1.methods()).isNotEmpty();
+      }
 
+      @Test
+      void readNestedClasses() {
+
+        File nestedClassFile = sampleRootPath.resolve("sample1").resolve("NestedClasses.java").toFile();
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(nestedClassFile));
+
+        ClassMeta parentClass = getClassMeta(actual, "NestedClasses");
+        assertThat(parentClass.nestedClasses()).isNotEmpty();
+        ClassMeta nestedClass = getClassMeta(parentClass.nestedClasses(), "StaticNestedClass");
+        assertThat(nestedClass.type()).isEqualTo(CLASS);
+
+        ClassMeta innerClass = getClassMeta(parentClass.nestedClasses(), "InnerClass");
+        assertThat(innerClass.type()).isEqualTo(CLASS);
+
+        ClassMeta innerEnum = getClassMeta(parentClass.nestedClasses(), "InnerEnum");
+        assertThat(innerEnum.type()).isEqualTo(ENUM);
+
+        ClassMeta innerRecord = getClassMeta(parentClass.nestedClasses(), "InnerRecord");
+        assertThat(innerRecord.type()).isEqualTo(RECORD);
+        assertThat(innerRecord.fields()).map(VariableMeta::name).containsExactly("p1");
+
+        ClassMeta innerInterface = getClassMeta(parentClass.nestedClasses(), "InnerInterface");
+        assertThat(innerInterface.type()).isEqualTo(INTERFACE);
+
+        ClassMeta innerAnnotation = getClassMeta(parentClass.nestedClasses(), "InnerAnnotation");
+        assertThat(innerAnnotation.type()).isEqualTo(ANNOTATION);
+      }
+
+      @Test
+      void read2LevelNestedClasses() {
+
+        File nestedClassFile = sampleRootPath.resolve("sample1").resolve("NestedClasses.java").toFile();
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(Set.of(nestedClassFile));
+
+        ClassMeta parentClass = getClassMeta(actual, "NestedClasses");
+        assertThat(parentClass.nestedClasses()).isNotEmpty();
+
+        ClassMeta nestedClass = getClassMeta(parentClass.nestedClasses(), "InnerClass2");
+        assertThat(nestedClass.type()).isEqualTo(CLASS);
+
+        ClassMeta childInnerClass2 = getClassMeta(nestedClass.nestedClasses(), "ChildInnerClass2");
+        assertThat(childInnerClass2.fields()).map(VariableMeta::name).containsExactly("innerParam");
+        assertThat(childInnerClass2.type()).isEqualTo(RECORD);
       }
 
     }

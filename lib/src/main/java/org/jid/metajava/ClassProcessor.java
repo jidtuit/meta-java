@@ -1,6 +1,8 @@
 package org.jid.metajava;
 
 
+import static com.sun.source.tree.Tree.Kind.*;
+import static com.sun.source.tree.Tree.Kind.CLASS;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -12,7 +14,6 @@ import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -25,7 +26,8 @@ import org.jid.metajava.model.MethodMeta;
 
 class ClassProcessor {
 
-  private static final Set<Kind> SUPPORT_IMPLEMENTS = Set.of(Kind.CLASS, Kind.RECORD, Kind.ENUM);
+  private static final Set<Kind> SUPPORT_IMPLEMENTS = Set.of(CLASS, RECORD, ENUM);
+  private static final Set<Kind> SUPPORT_NESTED_CLASSES = Set.of(CLASS, RECORD, ENUM, INTERFACE, ANNOTATION_TYPE);
 
   private final MethodProcessor methodProcessor;
   private final AnnotationProcessor annotationProcessor;
@@ -43,18 +45,27 @@ class ClassProcessor {
     Set<ImportMeta> imports = compilationUnitMeta.imports();
 
     runClassVisitor(tree, classes, (classTree, classesAcc) -> {
+      String className = classTree.getSimpleName().toString();
       var methodsOfAClass = new HashSet<MethodMeta>();
-      Set<VariableMeta> fieldsOfAClass = new HashSet<>();
+      var fieldsOfAClass = new HashSet<VariableMeta>();
+      var nestedClassesOfAClass = new HashSet<ClassMeta>();
+
       classTree.getMembers().forEach(classMember -> {
-        if (classMember.getKind() == Kind.METHOD) {
+        if (classMember.getKind() == METHOD) {
           methodProcessor.getMetas(classMember, methodsOfAClass);
-        } else if (classMember.getKind() == Kind.VARIABLE) {
+        } else if (classMember.getKind() == VARIABLE) {
           variableProcessor.getMetas(classMember, fieldsOfAClass);
+        } else if (SUPPORT_NESTED_CLASSES.contains(classMember.getKind())) {
+          String nestedPackageName = compilationUnitMeta.packageName() + "." + className;
+          var nestedCompilationUnitMeta = new CompilationUnitMeta(compilationUnitMeta.sourceFile(), nestedPackageName,
+            compilationUnitMeta.imports());
+          // New ClassProcessor instance to avoid stackoverflow because of recursion
+          new ClassProcessor(methodProcessor, annotationProcessor, variableProcessor).getMetas(classMember, nestedClassesOfAClass,
+            nestedCompilationUnitMeta);
         }
       });
       Map<Boolean, Set<MethodMeta>> methodsByType = methodsOfAClass.stream()
         .collect(groupingBy(MethodMeta::isConstructor, mapping(i -> i, toSet())));
-      String className = classTree.getSimpleName().toString();
       Set<AnnotationMeta> annotations = annotationProcessor.getMetas(classTree.getModifiers());
       var classType = ClassType.from(classTree.getKind().name());
       Set<String> extendsFrom = getExtendsFrom(classTree);
@@ -63,18 +74,18 @@ class ClassProcessor {
       classesAcc.add(
         new ClassMeta(className, classType, unmodifiableSet(methodsByType.getOrDefault(false, Set.of())), annotations, packageName,
           sourceFile, imports, extendsFrom, implementsFrom, unmodifiableSet(fieldsOfAClass),
-          unmodifiableSet(methodsByType.getOrDefault(true, Set.of())))
+          unmodifiableSet(methodsByType.getOrDefault(true, Set.of())), unmodifiableSet(nestedClassesOfAClass))
       );
       return null;
     });
   }
 
   private Set<String> getExtendsFrom(ClassTree classTree) {
-    if (classTree.getKind() != Kind.CLASS && classTree.getKind() != Kind.INTERFACE) {
+    if (classTree.getKind() != CLASS && classTree.getKind() != INTERFACE) {
       return Set.of();
     }
 
-    if (classTree.getKind() == Kind.CLASS) {
+    if (classTree.getKind() == CLASS) {
       return classTree.getExtendsClause() == null ? Set.of() : Set.of(classTree.getExtendsClause().toString());
     }
     // Kind == INTERFACE

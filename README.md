@@ -37,6 +37,7 @@
 * ~~Multiple class definition in one file~~
 * ~~Interface methods with default implementation marker~~
 * Nested classes
+* Support modifiers at class level
 * Support sealed interfaces -> Sealed should be one of the modifiers of an interface
 * Traverse through the meta information tree in a generic way.
 * Add search methods to look for an specific field or method or annotation or argument annotation.

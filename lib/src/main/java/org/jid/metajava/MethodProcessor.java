@@ -27,10 +27,6 @@ class MethodProcessor {
 
   public void getMetas(Tree methodInfoTree, Collection<MethodMeta> methods) {
     runMethodVisitor(methodInfoTree, methods, (methodTree, methodAcc) -> {
-      //  methodTree.getReturnType() is null in constructors which are currently NOT supported
-//      if (methodTree.getReturnType() == null) {
-//        return null;
-//      }
 
       String methodName = methodTree.getName().toString();
       //  methodTree.getReturnType() is null in constructors
@@ -42,7 +38,8 @@ class MethodProcessor {
       var annotations = annotationProcessor.getMetas(methodTree.getModifiers());
 
       methodAcc.add(
-        new MethodMeta(methodName, returnType, unmodifiableSequencedCollection(parameters), exceptions, modifierFlags, annotations));
+        new MethodMeta(methodName, returnType, unmodifiableSequencedCollection(parameters), exceptions, modifierFlags, annotations)
+      );
       return null;
     });
   }

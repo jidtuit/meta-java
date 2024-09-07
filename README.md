@@ -26,26 +26,27 @@
     * ~~Field annotations~~
 * ~~Does record and enum fields are treated as regular fields?? --> YES~~
 * ~~Methods~~
-  * ~~Params, param types and param annotations. Also includes varArgs~~
-  * ~~Return type~~
-  * ~~Throws exceptions~~
-  * ~~Class/Record/Enum constructors -> Constructors are methods with returnType == null~~
-  * ~~Modifiers:~~
-    * ~~Accessor (public, private, etc)~~
-    * ~~isStatic?~~
+    * ~~Params, param types and param annotations. Also includes varArgs~~
+    * ~~Return type~~
+    * ~~Throws exceptions~~
+    * ~~Class/Record/Enum constructors -> Constructors are methods with returnType == null~~
+    * ~~Modifiers:~~
+        * ~~Accessor (public, private, etc)~~
+        * ~~isStatic?~~
 * ~~Enum: Parse fields of the enum~~
 * ~~Multiple class definition in one file~~
-* Inner classes / records
-* Interface methods with default implementation marker -> Depends on full implementation of methods meta.
+* ~~Interface methods with default implementation marker~~
+* Inner classes
 * Support sealed interfaces -> Sealed should be one of the modifiers of an interface
 * Traverse through the meta information tree in a generic way.
 * Add search methods to look for an specific field or method or annotation or argument annotation.
+* Test missing modifiers (strictfp, native, abstract, etc)
 * Split MetaJavaTest into different classes
 * Generics support in:
-  * Methods
-  * Classes
-  * Interfaces
-  * Records
+    * Methods
+    * Classes
+    * Interfaces
+    * Records
 * Imports: Split between package and class/wildcard -> Breaks backwad compatibility
 * Annotation arguments with real types instead of Strings --> Where do we take that info? From the imports? Is there a way to do a
   Class.forName()
@@ -59,5 +60,8 @@ Limitations:
 * Float values in initializers are transformed by the java compiler. For example:
     * Source code: Double myVar = 42;
     * Is returned by the library as a field with the initializer that equals to 42.0F.
-* It doesn't read the body of constructors, methods, default implementations or static blocks for initializing
-* Constructors are regular methods with return type == null. There is a isConstructor() method to filter.
+* It doesn't read the body of constructors, methods, default implementations or static blocks for initializing.
+    * If there is a method of an interface with default implementation then it will also have the DEFAULT modifier.
+* Constructors are regular methods with return type == null. There is a isConstructor() convenience method.
+    * All the constructor of a class has the same name (`"<init>"`) but different parameters.
+

@@ -354,6 +354,7 @@ class MetaJavaTest {
         ClassMeta interface2 = getClassMeta(actual, "Interface2");
         assertThat(interface2.implementsFrom()).isEmpty();
       }
+
     }
 
     @Nested
@@ -663,6 +664,37 @@ class MetaJavaTest {
       assertThat(constructor2.modifiers()).isEmpty();
       assertThat(constructor2.exceptions()).containsExactlyInAnyOrder("MyException1");
       assertThat(constructor2.annotations()).map(AnnotationMeta::name).containsExactly("Deprecated");
+    }
+
+    @Test
+    void readInterfaceWithDefaultMethods() {
+
+      File interface3File = sampleRootPath.resolve("sample1").resolve("Interface3WithDefaultMethods.java").toFile();
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(interface3File));
+
+      ClassMeta interface3 = getClassMeta(actual, "Interface3WithDefaultMethods");
+      MethodMeta m31 = getMethodMeta(interface3, "method31");
+      assertThat(m31.name()).isEqualTo("method31");
+      assertThat(m31.modifiers()).contains(DEFAULT);
+
+      MethodMeta m32 = getMethodMeta(interface3, "method32");
+      assertThat(m32.name()).isEqualTo("method32");
+      assertThat(m32.exceptions()).containsExactly("IOException");
+      assertThat(m32.modifiers()).contains(DEFAULT);
+    }
+
+    @Test
+    void readInterfaceWithoutDefaultMethods() {
+
+      File interface3File = sampleRootPath.resolve("sample1").resolve("Interface3WithDefaultMethods.java").toFile();
+
+      Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(interface3File));
+
+      ClassMeta interface3 = getClassMeta(actual, "Interface3WithDefaultMethods");
+      MethodMeta method = getMethodMeta(interface3, "methodWithNoDefaultImplementation");
+      assertThat(method.name()).isEqualTo("methodWithNoDefaultImplementation");
+      assertThat(method.modifiers()).doesNotContain(DEFAULT);
     }
 
   }

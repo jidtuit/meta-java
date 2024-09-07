@@ -31,6 +31,7 @@ public enum Modifier {
       case "synchronized" -> SYNCHRONIZED;
       case "native" -> NATIVE;
       case "strictfp" -> STRICTFP;
+      case "default" -> DEFAULT;
       case null -> throw new IllegalArgumentException("Unknown modifier " + modifier);
       default -> throw new IllegalArgumentException("Unknown modifier " + modifier);
     };

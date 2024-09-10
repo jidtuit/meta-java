@@ -50,6 +50,8 @@ class ClassProcessor {
 
     runClassVisitor(tree, classes, (classTree, classesAcc) -> {
       String className = classTree.getSimpleName().toString();
+      var classType = ClassType.from(classTree.getKind().name());
+
       var methodsOfAClass = new HashSet<MethodMeta>();
       var fieldsOfAClass = new HashSet<VariableMeta>();
       var nestedClassesOfAClass = new HashSet<ClassMeta>();
@@ -68,18 +70,22 @@ class ClassProcessor {
             nestedClassesOfAClass, nestedCompilationUnitMeta);
         }
       });
+
       Map<Boolean, Set<MethodMeta>> methodsByType = methodsOfAClass.stream()
         .collect(groupingBy(MethodMeta::isConstructor, mapping(i -> i, toSet())));
+      Set<MethodMeta> methods = unmodifiableSet(methodsByType.getOrDefault(false, Set.of()));
+      Set<MethodMeta> constructors = unmodifiableSet(methodsByType.getOrDefault(true, Set.of()));
+
       Set<AnnotationMeta> annotations = annotationProcessor.getMetas(classTree.getModifiers());
-      var classType = ClassType.from(classTree.getKind().name());
       Set<String> extendsFrom = getExtendsFrom(classTree);
       Set<String> implementsFrom = getImplementsFrom(classTree);
       Set<Modifier> modifierFlags = modifierProcessor.getModifierFlags(classTree.getModifiers());
+      Set<String> permits = classTree.getPermitsClause() == null ? Set.of()
+        : classTree.getPermitsClause().stream().map(Object::toString).collect(toUnmodifiableSet());
 
       classesAcc.add(
-        new ClassMeta(className, classType, unmodifiableSet(methodsByType.getOrDefault(false, Set.of())), annotations, packageName,
-          sourceFile, imports, extendsFrom, implementsFrom, unmodifiableSet(fieldsOfAClass),
-          unmodifiableSet(methodsByType.getOrDefault(true, Set.of())), unmodifiableSet(nestedClassesOfAClass), modifierFlags)
+        new ClassMeta(className, classType, methods, annotations, packageName, sourceFile, imports, extendsFrom, implementsFrom,
+          unmodifiableSet(fieldsOfAClass), constructors, unmodifiableSet(nestedClassesOfAClass), modifierFlags, permits)
       );
       return null;
     });

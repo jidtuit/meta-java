@@ -284,6 +284,25 @@ class MetaJavaTest {
         assertThat(childInnerClass2.type()).isEqualTo(RECORD);
       }
 
+      @Test
+      void readSealedInterface() {
+        File sealedInterface = sampleRootPath.resolve("sample1").resolve("SealedClasses.java").toFile();
+
+        Set<ClassMeta> actual = metaJava.getMetaFrom(List.of(sealedInterface));
+
+        ClassMeta parentClass = getClassMeta(actual, "SealedClasses");
+        assertThat(parentClass.modifiers()).contains(SEALED);
+        assertThat(parentClass.permits()).containsExactlyInAnyOrder("FinalChild", "NonSealedChild");
+        assertThat(parentClass.nestedClasses()).hasSize(2);
+
+        ClassMeta nonSealedChild = getClassMeta(parentClass.nestedClasses(), "NonSealedChild");
+        assertThat(nonSealedChild.modifiers()).contains(NON_SEALED);
+
+        ClassMeta finalChild = getClassMeta(parentClass.nestedClasses(), "FinalChild");
+        assertThat(finalChild.type()).isEqualTo(RECORD);
+
+      }
+
     }
 
 
@@ -511,9 +530,7 @@ class MetaJavaTest {
         ClassMeta annotation1 = getClassMeta(actual, "Annotation1");
         assertThat(annotation1.implementsFrom()).isEmpty();
       }
-
     }
-
 
   }
 

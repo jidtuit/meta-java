@@ -36,12 +36,12 @@
 * ~~Enum: Parse fields of the enum~~
 * ~~Multiple class definition in one file~~
 * ~~Interface methods with default implementation marker~~
-* Nested classes
-* Support modifiers at class level
-* Support sealed interfaces -> Sealed should be one of the modifiers of an interface
+* ~~Nested classes~~
+* ~~Support modifiers at class level~~
+* Support sealed (non-sealed) interfaces and classes -> Sealed should be one of the modifiers of an interface. Need to add permits
 * Traverse through the meta information tree in a generic way.
 * Add search methods to look for an specific field or method or annotation or argument annotation.
-* Test missing modifiers (strictfp, native, abstract, etc)
+* Test missing modifiers (native, etc)
 * Split MetaJavaTest into different classes
 * Generics support in:
     * Methods
